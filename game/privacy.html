@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Horde — Privacy Policy</title>
+<style>
+  body { font: 15px/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1d1a33; background: #fff; margin: 0; padding: 18px; }
+  h1 { font-size: 21px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 18px 0 6px; }
+  p, li { max-width: 70ch; }
+  .muted { color: #6b6690; font-size: 13px; }
+  a { color: #5a2aa8; }
+</style>
+</head>
+<body>
+<article id="en">
+  <h1>Neon Horde: Survivor Arena — Privacy Policy</h1>
+  <p class="muted">Effective date: 2026-09-23</p>
+  <p>This policy explains what data the game <b>Neon Horde: Survivor Arena</b> (the “App”) and its advertising partner process. The App has no user accounts and does not ask for your name, e-mail or location.</p>
+  <h2>Data stored on your device</h2>
+  <p>Your game progress (levels, items, currencies, settings) is saved only on your device. Uninstalling the App or using “Reset progress” deletes it. We do not upload it to our servers.</p>
+  <h2>Advertising (Google AdMob)</h2>
+  <p>The App is free and shows ads provided by Google AdMob. To serve and measure ads, Google may collect and process: the device advertising ID, IP address, device and app information, and ad interaction data (views, clicks). Depending on your consent, ads may be personalised.</p>
+  <ul>
+    <li>In the EEA, the UK and Switzerland you are asked for consent through Google’s consent form (UMP) before personalised ads are shown. You can change your choice at any time in <i>Settings → Privacy &amp; ad options</i>.</li>
+    <li>You can reset or delete your advertising ID in Android settings (Google → Ads).</li>
+    <li>Google’s policy: <a href="https://policies.google.com/technologies/partner-sites">How Google uses information from sites or apps that use its services</a>.</li>
+  </ul>
+  <h2>Notifications</h2>
+  <p>If you allow notifications, the App schedules local reminders (for example “Free Gold Crate is ready”). They are created on your device; no data is sent anywhere.</p>
+  <h2>Children</h2>
+  <p>The App is not directed at children under 13 (or the minimum age in your country) and we do not knowingly collect their data.</p>
+  <h2>Contact</h2>
+  <p id="contact-en">Questions about this policy: use the developer contact on the App’s Google Play page.</p>
+</article>
+<hr>
+<article id="pl">
+  <h1>Neon Horde: Survivor Arena — Polityka prywatności</h1>
+  <p class="muted">Obowiązuje od: 23.09.2026</p>
+  <p>Ta polityka opisuje, jakie dane przetwarza gra <b>Neon Horde: Survivor Arena</b> („Aplikacja”) oraz jej partner reklamowy. Aplikacja nie ma kont użytkowników i nie prosi o imię, e-mail ani lokalizację.</p>
+  <h2>Dane zapisywane na urządzeniu</h2>
+  <p>Postęp gry (poziomy, przedmioty, waluty, ustawienia) jest zapisywany wyłącznie na Twoim urządzeniu. Odinstalowanie Aplikacji lub „Resetuj postęp” usuwa te dane. Nie wysyłamy ich na nasze serwery.</p>
+  <h2>Reklamy (Google AdMob)</h2>
+  <p>Aplikacja jest darmowa i wyświetla reklamy Google AdMob. Aby wyświetlać i mierzyć reklamy, Google może zbierać i przetwarzać: identyfikator reklamowy urządzenia, adres IP, informacje o urządzeniu i aplikacji oraz dane o interakcjach z reklamami. W zależności od Twojej zgody reklamy mogą być spersonalizowane.</p>
+  <ul>
+    <li>W EOG, Wielkiej Brytanii i Szwajcarii przed wyświetleniem reklam spersonalizowanych prosimy o zgodę w formularzu Google (UMP). Wybór możesz zmienić w <i>Ustawienia → Opcje prywatności i reklam</i>.</li>
+    <li>Identyfikator reklamowy zresetujesz lub usuniesz w ustawieniach Androida (Google → Reklamy).</li>
+    <li>Zasady Google: <a href="https://policies.google.com/technologies/partner-sites">Jak Google wykorzystuje informacje z witryn i aplikacji</a>.</li>
+  </ul>
+  <h2>Powiadomienia</h2>
+  <p>Jeśli zezwolisz na powiadomienia, Aplikacja planuje lokalne przypomnienia (np. „Darmowa Złota Skrzynia czeka”). Powstają one na urządzeniu i nie wysyłają żadnych danych.</p>
+  <h2>Dzieci</h2>
+  <p>Aplikacja nie jest skierowana do dzieci poniżej 13 lat (lub minimalnego wieku w Twoim kraju) i świadomie nie zbieramy ich danych.</p>
+  <h2>Kontakt</h2>
+  <p id="contact-pl">Pytania dotyczące polityki: skorzystaj z kontaktu do dewelopera na stronie Aplikacji w Google Play.</p>
+</article>
+<script src="js/core/config.js"></script>
+<script>
+  (function () {
+    var pl = (navigator.language || '').toLowerCase().indexOf('pl') === 0;
+    document.getElementById(pl ? 'en' : 'pl').remove();
+    document.querySelector('hr').remove();
+    document.documentElement.lang = pl ? 'pl' : 'en';
+    var d = (window.NH && NH.C && NH.C.DEVELOPER) || {};
+    if (d.email) {
+      var who = (d.name ? d.name + ', ' : '') + '<a href="mailto:' + d.email + '">' + d.email + '</a>' + (d.website ? ', <a href="' + d.website + '">' + d.website + '</a>' : '');
+      var el = document.getElementById(pl ? 'contact-pl' : 'contact-en');
+      el.innerHTML = (pl ? 'Administrator danych i kontakt: ' : 'Data controller and contact: ') + who;
+    }
+  })();
+</script>
+</body>
+</html>
