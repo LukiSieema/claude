@@ -244,11 +244,18 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
 
     // --------------------------------------------------------------- lifecycle
 
+    // WebView timers are global to every WebView in the process, including the one AdMob renders a full-screen
+    // ad in. onPause() also fires while such an ad covers us, so pausing them there froze the ad and its close
+    // button; pause them only when the app actually leaves the screen.
+    override fun onStart() {
+        super.onStart()
+        webView?.resumeTimers()
+    }
+
     override fun onResume() {
         super.onResume()
         NeonHordeApp.isInForeground = true
         applyImmersive()
-        webView?.resumeTimers()
         webView?.onResume()
         ads.onResume()
         js("window.NHNative && NHNative.onResume()")
@@ -259,8 +266,12 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
         js("window.NHNative && NHNative.onPause()")
         ads.onPause()
         webView?.onPause()
-        webView?.pauseTimers()
         super.onPause()
+    }
+
+    override fun onStop() {
+        webView?.pauseTimers()
+        super.onStop()
     }
 
     override fun onDestroy() {

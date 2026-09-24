@@ -17,7 +17,8 @@
 - [ ] `npm test` (testy jednostkowe) i `npm run e2e` (test na emulowanym telefonie) przechodzą.
 - [ ] `node tools/simulate.js` — balans bez niespodzianek po zmianach w `config.js`.
 - [ ] Android Studio → uruchom build **debug** na emulatorze (np. Pixel 8, API 35/36) i na fizycznym telefonie:
-      samouczek, level-up, skrzynia, boss, reklama z nagrodą (testowa), baner w lobby, powiadomienie po wyjściu z gry,
+      samouczek, level-up, skrzynia, boss, reklama z nagrodą i pełnoekranowa (testowe — zamykają się przyciskiem ✕),
+      baner w lobby, powiadomienie po wyjściu z gry,
       przycisk wstecz (zamyka okno → pauza → pytanie o wyjście).
 - [ ] `cd android && ./gradlew bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab`.
 
