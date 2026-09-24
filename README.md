@@ -25,7 +25,8 @@ Sterowanie: przeciągnij palcem/myszą (lub WASD). W przeglądarce reklamy są s
 ### 2. Uruchom na telefonie / emulatorze (Android Studio)
 1. Zainstaluj **Android Studio** (najnowsze) i otwórz folder **`android/`** (*File → Open*).
 2. Poczekaj na synchronizację Gradle. Jeśli Android Studio zaproponuje aktualizację AGP/Kotlin/bibliotek —
-   możesz ją przyjąć (projekt: AGP 8.12, Kotlin 2.2, compileSdk/targetSdk 36, minSdk 26).
+   możesz ją przyjąć (projekt: AGP 9.0 z wbudowanym Kotlinem, Gradle 9.1, compileSdk/targetSdk 36, minSdk 26;
+   wymaga Android Studio Panda 1 | 2025.3.1 lub nowszego).
 3. *Device Manager* → utwórz emulator (np. Pixel 8, Android 15/16) albo podłącz telefon z włączonym
    debugowaniem USB.
 4. Wybierz konfigurację **app** i kliknij **Run ▶**. Build debug używa testowych reklam Google.

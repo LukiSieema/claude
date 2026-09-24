@@ -1,9 +1,9 @@
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+// Kotlin is compiled by AGP 9's built-in Kotlin support (no org.jetbrains.kotlin.android plugin);
+// the Kotlin jvmTarget follows compileOptions.targetCompatibility below.
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
 }
 
 // Google's official AdMob test IDs (https://developers.google.com/admob/android/test-ads).
@@ -94,12 +94,6 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
