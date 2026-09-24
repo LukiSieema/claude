@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launch theme: Android 12+ splash screen (via androidx.core:core-splashscreen on older versions). -->
+    <style name="Theme.NeonHorde.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/nh_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.NeonHorde</item>
+    </style>
+
+    <style name="Theme.NeonHorde" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/nh_bg</item>
+        <item name="android:colorBackground">@color/nh_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

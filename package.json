@@ -1,0 +1,16 @@
+{
+  "name": "neon-horde",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Neon Horde: Survivor Arena — HTML5 Canvas roguelite survivor for Android (WebView + AdMob).",
+  "scripts": {
+    "serve": "python3 -m http.server 8765 -d game",
+    "test": "node --test tests/unit/*.test.js",
+    "sim": "node tools/simulate.js",
+    "e2e": "python3 .claude/skills/webapp-testing/scripts/with_server.py --server \"python3 -m http.server 8765 -d game --bind 127.0.0.1\" --port 8765 -- node tests/e2e/smoke.js",
+    "store-assets": "python3 .claude/skills/webapp-testing/scripts/with_server.py --server \"python3 -m http.server 8790 --bind 127.0.0.1\" --port 8790 -- node tools/store-assets.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

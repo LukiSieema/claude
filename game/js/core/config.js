@@ -28,7 +28,7 @@
     crit: 0.05, critMult: 2.0, contactCd: 0.5, hitInvuln: 0.12,
   };
 
-  C.xpToNext = (level) => Math.round(4 + 3.5 * level + 0.35 * level * level);
+  C.xpToNext = (level) => Math.round(2 + 3.2 * level + 0.35 * level * level);
 
   // ---------- Weapons ----------
   // dmg values are multipliers of hero ATK.
@@ -195,7 +195,7 @@
     { glitchling: 3, swarmer: 3, brute: 2.5, spitter: 2, dasher: 2, splitter: 2, bomber: 1.5 },
     { glitchling: 2, swarmer: 4, brute: 3, spitter: 2.5, dasher: 2.5, splitter: 2, bomber: 2 },
   ];
-  C.spawnRate = (t, chapter) => 1.0 + (t / 60) * 1.3 + chapter * 0.08; // enemies per second
+  C.spawnRate = (t, chapter) => 1.35 + (t / 60) * 1.3 + chapter * 0.08; // enemies per second
   C.aliveCap = (t) => Math.min(C.MAX_ENEMIES, 60 + (t / 60) * 32);
   C.enemyHpScale = (t) => { const m = t / 60; return 1 + m * 0.28 + m * m * 0.025; };
   C.enemyDmgScale = (t) => 1 + (t / 60) * 0.07;
@@ -214,14 +214,14 @@
   C.CHAPTERS = [
     { boss: 'titan', hp: 1.0, dmg: 1.0, favor: 'glitchling', palette: { bg: '#0d0b24', bg2: '#1a0f3d', grid: '#2a2466', accent: '#ff3d7f' } },
     { boss: 'hive', hp: 2.1, dmg: 1.3, favor: 'swarmer', palette: { bg: '#0b1426', bg2: '#10284a', grid: '#1e3f73', accent: '#ffb13d' } },
-    { boss: 'serpent', hp: 4.2, dmg: 1.7, favor: 'splitter', palette: { bg: '#130b26', bg2: '#2b0f45', grid: '#48226e', accent: '#b04dff' } },
-    { boss: 'prism', hp: 7.5, dmg: 2.2, favor: 'spitter', palette: { bg: '#081c1e', bg2: '#0c3336', grid: '#155c5a', accent: '#3dffb4' } },
-    { boss: 'king', hp: 13, dmg: 2.8, favor: 'dasher', palette: { bg: '#1c1608', bg2: '#3a2c0c', grid: '#6b5215', accent: '#ffe63d' } },
+    { boss: 'serpent', hp: 4.9, dmg: 1.8, favor: 'splitter', palette: { bg: '#130b26', bg2: '#2b0f45', grid: '#48226e', accent: '#b04dff' } },
+    { boss: 'prism', hp: 8.6, dmg: 2.3, favor: 'spitter', palette: { bg: '#081c1e', bg2: '#0c3336', grid: '#155c5a', accent: '#3dffb4' } },
+    { boss: 'king', hp: 15, dmg: 2.9, favor: 'dasher', palette: { bg: '#120c22', bg2: '#2c1f3f', grid: '#5b4a2a', accent: '#ffe63d' } },
     { boss: 'titan', hp: 22, dmg: 3.5, favor: 'brute', mk: 2, palette: { bg: '#200a14', bg2: '#3d0f24', grid: '#6e1d3f', accent: '#ff5d8f' } },
     { boss: 'hive', hp: 36, dmg: 4.3, favor: 'bomber', mk: 2, palette: { bg: '#0a1020', bg2: '#16213f', grid: '#2c3f7a', accent: '#7aa2ff' } },
     { boss: 'serpent', hp: 58, dmg: 5.2, favor: 'swarmer', mk: 2, palette: { bg: '#0f0a1f', bg2: '#251344', grid: '#3f2a7a', accent: '#d19bff' } },
     { boss: 'prism', hp: 90, dmg: 6.2, favor: 'spitter', mk: 2, palette: { bg: '#07181a', bg2: '#0f2e2a', grid: '#1b5c4d', accent: '#7dffcf' } },
-    { boss: 'king', hp: 140, dmg: 7.4, favor: 'dasher', mk: 2, palette: { bg: '#1a0a06', bg2: '#3d140a', grid: '#7a2c15', accent: '#ff8a3d' } },
+    { boss: 'king', hp: 140, dmg: 7.4, favor: 'dasher', mk: 2, palette: { bg: '#150a1c', bg2: '#35142e', grid: '#6e2a36', accent: '#ff8a3d' } },
   ];
 
   // ---------- Drops ----------

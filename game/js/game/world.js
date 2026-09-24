@@ -5,8 +5,6 @@
   const U = NH.U, C = NH.C;
   const TAU = U.TAU;
 
-  let ENEMY_ID = 1;
-
   /**
    * opts: { chapter (1-based), stats (Meta.heroStats), seed, view: {w, h}, tutorial }
    */
@@ -57,8 +55,9 @@
     this.pe = pe;
     this.input = { x: 0, y: 0 };
 
+    this.nextEnemyId = 1; // per run, so a seed fully determines the simulation
     this.enemies = U.Pool(() => ({ wcd: new Float32Array(C.WEAPON_IDS.length + 4) }), (e) => {
-      e.id = ENEMY_ID++; e.x = 0; e.y = 0; e.vx = 0; e.vy = 0; e.kx = 0; e.ky = 0;
+      e.id = this.nextEnemyId++; e.x = 0; e.y = 0; e.vx = 0; e.vy = 0; e.kx = 0; e.ky = 0;
       e.hp = 1; e.maxHp = 1; e.r = 10; e.type = ''; e.def = null; e.speed = 0; e.dmg = 0; e.mass = 1;
       e.elite = false; e.boss = null; e.parent = null; e.seg = -1; e.color = '#fff';
       e.slowT = 0; e.slowAmt = 0; e.freezeT = 0; e.flash = 0; e.touchCd = 0; e.stunT = 0;
@@ -79,6 +78,11 @@
 
     this.addWeapon(this.stats.startWeapon, this.stats.startLevel);
     this.recalc();
+    // opening wave: action (and the first level-up) within seconds of pressing Start
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * TAU + 0.3;
+      this.spawnEnemy('glitchling', { x: Math.cos(a) * 340, y: Math.sin(a) * 340 });
+    }
   }
 
   const P = World.prototype;
@@ -208,7 +212,7 @@
     }
     // continuous spawning
     let rate = C.spawnRate(t, this.chapterIdx);
-    if (this.tutorial && t < 40) rate *= 0.55;
+    if (this.tutorial && t < 40) rate *= 0.8;
     this.spawnAcc += rate * dt;
     const cap = C.aliveCap(t);
     const mix = C.WAVE_MIX[Math.min(C.WAVE_MIX.length - 1, Math.floor(t / 60))];
@@ -464,10 +468,10 @@
         g.vx = U.damp(g.vx, dx / d * sp, 9, dt);
         g.vy = U.damp(g.vy, dy / d * sp, 9, dt);
         if (d < h.r + g.r) { this.collect(g); continue; }
-      } else if (g.kind === 'xp' && d2 < pr2 * 6.25 && g.age > 0.4) {
-        // gentle drift inside 2.5x pickup range keeps collecting satisfying without auto-looting
+      } else if (g.kind === 'xp' && d2 < pr2 * 12.25 && g.age > 0.4) {
+        // gentle drift inside 3.5x pickup range keeps collecting satisfying without auto-looting
         const d = Math.sqrt(d2) || 1;
-        g.vx = U.damp(g.vx, dx / d * 70, 3, dt); g.vy = U.damp(g.vy, dy / d * 70, 3, dt);
+        g.vx = U.damp(g.vx, dx / d * 95, 3, dt); g.vy = U.damp(g.vy, dy / d * 95, 3, dt);
       } else {
         g.vx = U.damp(g.vx, 0, 5, dt); g.vy = U.damp(g.vy, 0, 5, dt);
       }

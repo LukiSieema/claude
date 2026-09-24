@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neon Horde store art</title>
+<style>
+  @font-face { font-family: 'Fredoka'; font-weight: 300 700; src: url('../../game/fonts/fredoka-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Fredoka'; font-weight: 300 700; src: url('../../game/fonts/fredoka-latin-ext.woff2') format('woff2'); unicode-range: U+0100-02BA; }
+  html, body { margin: 0; background: #0d0b24; overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="../../game/js/core/util.js"></script>
+<script src="../../game/js/core/config.js"></script>
+<script src="../../game/js/render/sprites.js"></script>
+<script>
+(async function () {
+  const U = NH.U, C = NH.C, S = NH.Sprites, TAU = U.TAU;
+  const mode = new URLSearchParams(location.search).get('mode') || 'feature';
+  const W = mode === 'icon' ? 512 : 1024, H = mode === 'icon' ? 512 : 500;
+  const cv = document.getElementById('c');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  await document.fonts.load('700 40px Fredoka');
+  S.init(1, 3);
+  const rng = U.rng(2026);
+
+  function glowCircle(x, y, r, color, alpha) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, U.rgba(color, alpha));
+    g.addColorStop(1, U.rgba(color, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  }
+
+  function hero(x, y, r, facing) {
+    glowCircle(x, y, r * 2.6, '#2ef2ff', 0.35);
+    ctx.save();
+    ctx.translate(x, y);
+    const body = ctx.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.05, 0, 0, r);
+    body.addColorStop(0, '#effeff'); body.addColorStop(0.35, '#6ff8ff'); body.addColorStop(1, '#0a86a6');
+    ctx.shadowColor = '#2ef2ff'; ctx.shadowBlur = r * 0.9;
+    ctx.fillStyle = body;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+    ctx.shadowBlur = r * 0.4; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = r * 0.1; ctx.stroke();
+    ctx.rotate(facing);
+    ctx.shadowColor = '#ff3df2'; ctx.shadowBlur = r * 0.5;
+    ctx.fillStyle = '#1b0b3a';
+    ctx.beginPath(); ctx.ellipse(r * 0.36, 0, r * 0.42, r * 0.62, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#ff5df5';
+    ctx.beginPath(); ctx.ellipse(r * 0.47, -r * 0.19, r * 0.16, r * 0.1, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(r * 0.47, r * 0.19, r * 0.16, r * 0.1, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  function sprite(sp, x, y, scale, rot) {
+    const s = sp.size * scale;
+    ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot);
+    ctx.drawImage(sp.c, -s / 2, -s / 2, s, s);
+    ctx.restore();
+  }
+
+  function lightning(pts, color, width) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.shadowColor = color; ctx.shadowBlur = 18; ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+    for (let i = 2; i < pts.length; i += 2) {
+      const x0 = pts[i - 2], y0 = pts[i - 1], x1 = pts[i], y1 = pts[i + 1];
+      for (let s = 1; s <= 5; s++) {
+        const t = s / 5, j = s === 5 ? 0 : 9;
+        ctx.lineTo(U.lerp(x0, x1, t) + rng.range(-j, j), U.lerp(y0, y1, t) + rng.range(-j, j));
+      }
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = width * 0.35; ctx.stroke();
+    ctx.restore();
+  }
+
+  function sky(horizon, accent) {
+    const g = ctx.createLinearGradient(0, 0, 0, horizon);
+    g.addColorStop(0, '#0d0b24'); g.addColorStop(1, '#2b1766');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, horizon);
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 90; i++) {
+      ctx.globalAlpha = rng.range(0.2, 0.8);
+      const s = rng.range(0.8, 2.2);
+      ctx.fillRect(rng.range(0, W), rng.range(0, horizon * 0.85), s, s);
+    }
+    ctx.globalAlpha = 1;
+    const fg = ctx.createLinearGradient(0, horizon, 0, H);
+    fg.addColorStop(0, '#1d0f45'); fg.addColorStop(1, '#0d0b24');
+    ctx.fillStyle = fg; ctx.fillRect(0, horizon, W, H - horizon);
+  }
+
+  function sun(x, y, r, accent) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, y + r * 0.2); ctx.clip();
+    glowCircle(x, y, r * 1.8, accent, 0.35);
+    const g = ctx.createLinearGradient(0, y - r, 0, y + r);
+    g.addColorStop(0, '#ffe9a8'); g.addColorStop(0.5, accent); g.addColorStop(1, '#7a1a6e');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#2b1766';
+    for (let i = 0; i < 7; i++) ctx.fillRect(x - r, y + r * (0.02 + i * 0.13), r * 2, 2 + i * 1.6);
+    ctx.restore();
+  }
+
+  function grid(horizon, color) {
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.7;
+    ctx.shadowColor = color; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    for (let i = -22; i <= 22; i++) { ctx.moveTo(W / 2 + i * 10, horizon); ctx.lineTo(W / 2 + i * W * 0.14, H); }
+    for (let i = 0; i < 12; i++) { const z = (i + 0.35) / 12; const y = horizon + (H - horizon) * z * z; ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+    ctx.globalAlpha = 1; ctx.shadowBlur = 18; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(0, horizon); ctx.lineTo(W, horizon); ctx.stroke();
+    ctx.restore();
+  }
+
+  function neonWord(text, x, y, size, color, align) {
+    ctx.save();
+    ctx.font = '700 ' + size + 'px Fredoka';
+    ctx.textAlign = align || 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.shadowColor = color;
+    for (const b of [48, 24, 10]) { ctx.shadowBlur = b; ctx.fillStyle = color; ctx.fillText(text, x, y); }
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = U.mixHex(color, '#ffffff', 0.72);
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  function boss(x, y, r, color) {
+    ctx.save(); ctx.translate(x, y);
+    ctx.shadowColor = color; ctx.shadowBlur = 30;
+    ctx.strokeStyle = color; ctx.lineWidth = 4;
+    ctx.beginPath();
+    for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, rr = r * (i % 2 ? 1.12 : 1.3); if (i === 0) ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); else ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = U.mixHex(color, '#150b2e', 0.55); ctx.lineWidth = 5;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + 0.3; if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r); else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-r * 0.4, -r * 0.24, r * 0.15, 0, TAU); ctx.arc(r * 0.4, -r * 0.24, r * 0.15, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#1b0b3a';
+    ctx.beginPath(); ctx.arc(-r * 0.43, -r * 0.18, r * 0.07, 0, TAU); ctx.arc(r * 0.37, -r * 0.18, r * 0.07, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  if (mode === 'icon') {
+    const bg = ctx.createRadialGradient(256, 236, 20, 256, 256, 380);
+    bg.addColorStop(0, '#2b1766'); bg.addColorStop(1, '#0d0b24');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(58,47,138,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 1; i < 8; i++) { ctx.moveTo(i * 64, 0); ctx.lineTo(i * 64, H); ctx.moveTo(0, i * 64); ctx.lineTo(W, i * 64); }
+    ctx.stroke();
+    // enemies closing in from the corners
+    const foes = [['glitchling', 96, 110, 0.3], ['brute', 418, 402, 0.2], ['spitter', 410, 104, 0], ['dasher', 100, 408, 0.4]];
+    for (const [type, x, y, rot] of foes) { ctx.globalAlpha = 0.9; sprite(S.enemy(type, false), x, y, 1.15, rot); }
+    ctx.globalAlpha = 1;
+    // rose ring
+    ctx.save(); ctx.shadowColor = '#ff3d7f'; ctx.shadowBlur = 28; ctx.strokeStyle = '#ff3d7f'; ctx.lineWidth = 12;
+    ctx.beginPath(); ctx.arc(256, 256, 160, 0, TAU); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 3; i++) {
+      const a = -0.4 + i * TAU / 3;
+      const bx = 256 + Math.cos(a) * 160, by = 256 + Math.sin(a) * 160;
+      sprite(S.blade('#b77bff', 12), bx, by, 1.6, a + Math.PI / 2);
+    }
+    ctx.restore();
+    hero(256, 256, 104, -0.35);
+  } else {
+    const horizon = H * 0.6;
+    sky(horizon);
+    sun(W * 0.7, horizon - 30, 150, '#ff3d7f');
+    grid(horizon, '#ff3d7f');
+    boss(W * 0.7, horizon - 128, 58, '#ffc83d');
+    // horde converging on the hero
+    const hx = W * 0.7, hy = H * 0.8;
+    const foes = [];
+    const types = ['glitchling', 'swarmer', 'brute', 'spitter', 'dasher', 'splitter', 'bomber'];
+    for (let i = 0; i < 26; i++) {
+      const a = rng.range(-Math.PI * 0.95, Math.PI * 0.95);
+      const d = rng.range(130, 290);
+      const x = hx + Math.cos(a) * d * 1.25, y = hy + Math.sin(a) * d * 0.55;
+      if (x < W * 0.44 || x > W - 60 || y > H - 40 || y < horizon - 10) continue;
+      foes.push([rng.pick(types), x, y]);
+    }
+    foes.sort((a, b) => a[2] - b[2]);
+    for (const [type, x, y] of foes) sprite(S.enemy(type, rng.chance(0.12)), x, y, 0.6 + (y - horizon) / (H - horizon) * 0.6, rng.range(-0.3, 0.3));
+    const near = foes.slice().sort((a, b) => U.dist(a[1], a[2], hx, hy) - U.dist(b[1], b[2], hx, hy)).slice(0, 3);
+    if (near.length >= 2) lightning([hx, hy - 10, near[0][1], near[0][2], near[1][1], near[1][2]].concat(near[2] ? [near[2][1], near[2][2]] : []), '#8fd4ff', 4);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + 0.5; sprite(S.blade('#b77bff', 12), hx + Math.cos(a) * 66, hy + Math.sin(a) * 30, 0.9, a + Math.PI / 2); }
+    for (let i = 0; i < 5; i++) sprite(S.bolt('#6ff8ff', 26, 5), hx - 60 - i * 34, hy - 30 - i * 16, 0.8, Math.atan2(16, 34) + Math.PI);
+    ctx.restore();
+    hero(hx, hy, 34, -2.6);
+    // logo block (left)
+    neonWord('NEON', 64, 186, 118, '#2ef2ff');
+    neonWord('HORDE', 64, 300, 118, '#ff3d7f');
+    ctx.save();
+    ctx.font = '600 34px Fredoka'; ctx.fillStyle = '#ffc83d'; ctx.shadowColor = '#ffc83d'; ctx.shadowBlur = 14;
+    ctx.fillText('Survivor Arena', 70, 356);
+    ctx.restore();
+  }
+  document.body.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

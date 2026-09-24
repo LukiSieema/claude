@@ -6,7 +6,7 @@
   const TAU = U.TAU;
   const P = NH.World.prototype;
 
-  const AIM_RANGE = 440;
+  const AIM_RANGE = 330; // enemies die close enough that their XP lands near the hero
 
   P.updateWeapons = function (dt) {
     for (let i = 0; i < this.weapons.length; i++) {

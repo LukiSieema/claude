@@ -71,13 +71,15 @@
     },
 
     load(now) {
-      let raw = null;
-      try { raw = this.storage && this.storage.getItem(C.SAVE_KEY); } catch (e) { raw = null; }
-      if (!raw) {
-        try { raw = this.storage && this.storage.getItem(C.SAVE_KEY + '.bak'); } catch (e) { raw = null; }
-      }
-      if (raw) {
-        try { return migrate(JSON.parse(raw), now); } catch (e) { /* corrupted: fall back to defaults */ }
+      // Main save first; if it is missing or corrupted, the previous save (backup) is used.
+      for (const key of [C.SAVE_KEY, C.SAVE_KEY + '.bak']) {
+        let raw = null;
+        try { raw = this.storage && this.storage.getItem(key); } catch (e) { raw = null; }
+        if (!raw) continue;
+        try {
+          const data = JSON.parse(raw);
+          if (data && typeof data === 'object') return migrate(data, now);
+        } catch (e) { /* corrupted: try the next copy */ }
       }
       return defaults(now);
     },
@@ -87,7 +89,12 @@
       try {
         const json = JSON.stringify(state);
         const prev = this.storage.getItem(C.SAVE_KEY);
-        if (prev) this.storage.setItem(C.SAVE_KEY + '.bak', prev);
+        if (prev && prev !== json) {
+          // keep the backup only if the current save is valid, so corruption never overwrites a good copy
+          let valid = false;
+          try { valid = !!JSON.parse(prev); } catch (e) { valid = false; }
+          if (valid) this.storage.setItem(C.SAVE_KEY + '.bak', prev);
+        }
         this.storage.setItem(C.SAVE_KEY, json);
         return true;
       } catch (e) {

@@ -686,7 +686,7 @@
           '<div class="set-row"><span>' + t('language') + '</span><div class="seg">' + langs + '</div></div>' +
           '<div class="modal-actions">' +
           '<button class="btn btn-ghost btn-wide" data-x="guide">' + t('evoGuide') + '</button>' +
-          (PF.isNative ? '<button class="btn btn-ghost btn-wide" data-x="privacy-options">' + t('privacyOptions') + '</button>' : '') +
+          (PF.isNative && PF.privacyOptionsRequired() ? '<button class="btn btn-ghost btn-wide" data-x="privacy-options">' + t('privacyOptions') + '</button>' : '') +
           '<button class="btn btn-ghost btn-wide" data-x="policy">' + t('privacyPolicy') + '</button>' +
           '<button class="btn btn-gold btn-wide" data-x="rate">★ ' + t('rateGame') + '</button>' +
           '<button class="btn btn-rose btn-sm" data-x="reset">' + t('resetProgress') + '</button></div>' +

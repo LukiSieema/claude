@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Neon Horde</string>
+    <string name="notif_channel_name">Nagrody i przypomnienia</string>
+    <string name="notif_channel_desc">Darmowe skrzynie, pełny patrol i naładowana energia.</string>
+</resources>

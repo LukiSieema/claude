@@ -25,3 +25,23 @@ Najczęściej przydatne w tym repo:
 - sklep Google Play i marketing: `aso`, `launch`, `marketing-psychology`, `ad-creative`,
   `copywriting`, `onboarding`, `analytics`
 - generowanie grafik/audio: `polli` (Pollinations)
+
+## Projekt: Neon Horde: Survivor Arena
+
+Gra mobilna (survivor roguelite) w HTML5 Canvas (`game/`) opakowana w projekt Android Studio
+(`android/`, Kotlin WebView + AdMob + UMP). Opis: `README.md`, projekt gry: `docs/GDD.md`,
+stan prac: `docs/PROGRESS.md`.
+
+- Jedno źródło gry: `android/app/build.gradle.kts` pakuje `../../game` jako assets — nie kopiuj plików gry.
+- Logika symulacji (`game/js/game`, `game/js/meta`, `game/js/core/{util,config,save}.js`) nie może używać
+  DOM, bo ładuje ją Node (`tools/load-game.js`) w testach i symulatorze.
+- Balans tylko w `game/js/core/config.js`; po zmianie uruchom `npm run sim`.
+- Most do Androida: `game/js/core/platform.js` ↔ `android/.../GameBridge.kt` (nazwy metod muszą się zgadzać).
+- Teksty UI zawsze w obu językach w `game/js/core/i18n.js` (EN, PL).
+
+Komendy:
+- `npm test` — testy jednostkowe (node:test)
+- `npm run sim` — symulacja balansu
+- `npm run e2e` — test E2E w Chromium (Playwright; `NODE_PATH=$(npm root -g)` gdy Playwright jest globalny)
+- `npm run store-assets` — grafiki i zrzuty do Google Play (`docs/store/`)
+- `npm run serve` — podgląd gry na http://localhost:8765

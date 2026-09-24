@@ -1,0 +1,25 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+
+# Node
+node_modules/
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+android/captures/
+android/.kotlin/
+*.jks
+*.keystore
+*.apk
+*.aab
+
+# Python
+__pycache__/
