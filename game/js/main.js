@@ -45,8 +45,9 @@
       for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
       M.ensureDaily(this.state, now, this.rng);
       M.updateEnergy(this.state, now);
-      // first launch: keep the ad SDK quiet until the tutorial run is over (it made the tutorial stutter)
-      if (!this.state.tutorial.firstRunDone) PF.pauseAds(true);
+      // First launch: nothing ad-related (consent form, SDK, measurement) runs before the tutorial is over —
+      // its network work made the tutorial stutter. The consent form then appears on the tutorial results.
+      if (this.state.tutorial.firstRunDone) PF.startAds();
 
       this.canvas = $('#game-canvas');
       this.renderer = new NH.Renderer(this.canvas);
@@ -88,9 +89,6 @@
         await new Promise((r) => setTimeout(r, 60));
       }
       if (!this.state.tutorial.firstRunDone) {
-        // first launch: the ad-consent form (EEA) must be answered before the tutorial run starts, so it never
-        // pops up over the fight
-        await PF.whenConsentResolved(8000);
         $('.loading-text').textContent = t('tapToStart');
         $('.loading-text').classList.add('pulse');
         const go = () => {
@@ -208,6 +206,7 @@
       this.mode = 'results';
       this.state.tutorial.firstRunDone = true;
       PF.pauseAds(false);
+      PF.startAds();
       PF.keepScreenOn(false);
       PF.setBanner(true);
       A.setMusicMode('menu');

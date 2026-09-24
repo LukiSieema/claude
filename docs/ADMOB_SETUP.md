@@ -31,6 +31,9 @@ Te wartości trafiają do `BuildConfig` i manifestu tylko w buildzie release (`a
 ## 3. Zgoda RODO / UE i stany USA (UMP) — obowiązkowe
 Gra używa Google User Messaging Platform (`AdsManager.kt`): prosi o zgodę **przed** pierwszym
 żądaniem reklamy i pokazuje przycisk *Ustawienia → Opcje prywatności i reklam*, gdy jest wymagany.
+Przy pierwszym uruchomieniu cały stos reklamowy (formularz zgody, SDK, pomiar aplikacji —
+`DELAY_APP_MEASUREMENT_INIT`) rusza dopiero po samouczku, więc formularz pojawia się na ekranie jego
+wyników; w samouczku nie ma przycisków reklam. Przy kolejnych uruchomieniach zgoda i SDK startują od razu.
 1. AdMob → **Prywatność i wiadomości** → **RODO** → *Utwórz wiadomość* → wybierz aplikację,
    języki (co najmniej EN i PL), dodaj link do polityki prywatności → **Opublikuj**.
 2. Tamże: **Przepisy stanowe USA** → utwórz i opublikuj wiadomość.

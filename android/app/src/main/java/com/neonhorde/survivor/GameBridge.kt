@@ -51,7 +51,7 @@ class GameBridge(private val activity: MainActivity) {
     fun setAdsPaused(paused: Boolean) = ui { activity.ads.setPaused(paused) }
 
     @JavascriptInterface
-    fun isConsentResolved(): Boolean = activity.isConsentResolved()
+    fun startAds() = ui { activity.ads.start() }
 
     @JavascriptInterface
     fun isPrivacyOptionsRequired(): Boolean = uiResult(false) { activity.ads.isPrivacyOptionsRequired() }

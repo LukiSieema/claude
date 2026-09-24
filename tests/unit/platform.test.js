@@ -48,23 +48,6 @@ test('if the result never arrives, coming back to the game settles it without a 
   assert.equal(PF.adBusy, false);
 });
 
-test('the first run waits for the ad-consent flow, with a timeout', async () => {
-  let resolved = false;
-  const PF = withNative({ isConsentResolved: () => resolved });
-  let done = false;
-  const p = PF.whenConsentResolved(5000).then(() => { done = true; });
-  await new Promise((r) => setTimeout(r, 30));
-  assert.equal(done, false, 'still waiting while the consent form is open');
-  resolved = true;
-  globalThis.NHNative.onConsent(true);
-  await p;
-  assert.equal(done, true);
-  const t0 = Date.now();
-  await withNative({ isConsentResolved: () => false }).whenConsentResolved(200);
-  assert.ok(Date.now() - t0 >= 190, 'gives up after the timeout (e.g. no network)');
-  await withNative({ isConsentResolved: () => true }).whenConsentResolved(5000); // already resolved: no wait
-});
-
 test('JS ↔ Android bridge names match (platform.js ↔ GameBridge.kt / MainActivity.kt)', () => {
   const fs = require('fs');
   const root = path.join(__dirname, '..', '..');

@@ -74,7 +74,9 @@
       return this.webAdOverlay('interstitial', placement).then((r) => { this.adBusy = false; return r; });
     },
 
-    /** Holds the ad SDK start and ad downloads (Android) while the first-launch tutorial runs. */
+    /** Starts the consent flow and then the ad SDK (Android). Later calls do nothing. */
+    startAds() { this.call('startAds'); },
+    /** Holds ad downloads while a tutorial run is on. */
     pauseAds(paused) { this.call('setAdsPaused', !!paused); },
 
     setBanner(visible) {
@@ -137,15 +139,6 @@
     },
     cancelNotification(id) { this.call('cancelNotification', id); },
     requestNotificationPermission() { this.call('requestNotificationPermission'); },
-
-    /** Resolves once the ad-consent flow (UMP) has finished — at once on the web — or after `timeoutMs`. */
-    whenConsentResolved(timeoutMs) {
-      if (!native || this.call('isConsentResolved') === true) return Promise.resolve();
-      return new Promise((resolve) => {
-        const timer = setTimeout(resolve, timeoutMs);
-        this.on('consent', () => { clearTimeout(timer); resolve(); });
-      });
-    },
 
     privacyOptionsRequired() { return native ? this.call('isPrivacyOptionsRequired') === true : false; },
     openPrivacyOptions() { this.call('showPrivacyOptions'); },

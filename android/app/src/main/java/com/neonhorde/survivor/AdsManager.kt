@@ -49,14 +49,13 @@ class AdsManager(
     private val consent: ConsentInformation = UserMessagingPlatform.getConsentInformation(activity)
     private val sdkStarted = AtomicBoolean(false)
 
-    // While paused (the first-launch tutorial) the SDK is not started and no ad is loaded: starting the SDK and
-    // downloading the first ads competes with the game for the CPU and made the tutorial stutter.
+    // While paused (a tutorial run) the SDK is not started and no ad is loaded: that network and CPU work
+    // competes with the game and made the tutorial stutter. The game also calls start() only after the
+    // first-launch tutorial.
+    private var started = false
     private var paused = false
     private var sdkWanted = false
 
-    /** True once the consent flow has finished (form answered, not required, or failed). */
-    @Volatile var consentResolved = false
-        private set
     @Volatile private var sdkReady = false
 
     @Volatile private var rewarded: RewardedAd? = null
@@ -76,7 +75,10 @@ class AdsManager(
 
     // ------------------------------------------------------------------ consent
 
+    /** Consent flow (UMP), then the SDK. Main thread; later calls do nothing. */
     fun start() {
+        if (started || destroyed) return
+        started = true
         val params = ConsentRequestParameters.Builder().apply {
             if (BuildConfig.DEBUG && BuildConfig.UMP_TEST_DEVICE_ID.isNotEmpty()) {
                 setConsentDebugSettings(
@@ -107,7 +109,6 @@ class AdsManager(
     }
 
     private fun onConsentKnown() {
-        consentResolved = true
         val can = consent.canRequestAds()
         if (can) startSdk()
         listener.onConsentResolved(can)

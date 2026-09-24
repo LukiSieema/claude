@@ -73,8 +73,9 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
         applyImmersive()
         observeInsets()
 
+        // The game starts the consent flow and the SDK (GameBridge.startAds): right away on later launches,
+        // only after the tutorial on the first one (the ad stack's network work made the tutorial stutter).
         ads = AdsManager(this, bannerContainer, this)
-        ads.start()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -196,7 +197,6 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
         else js("window.NHNative && NHNative.onFocusLost()")
     }
 
-    fun isConsentResolved(): Boolean = ::ads.isInitialized && ads.consentResolved
 
     fun setKeepScreenOn(on: Boolean) {
         if (on) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
