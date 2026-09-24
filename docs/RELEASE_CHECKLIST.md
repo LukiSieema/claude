@@ -1,7 +1,7 @@
 # Checklista wydania na Google Play
 
 ## A. Przed pierwszym buildem wydania
-- [ ] `game/js/core/config.js` → `C.DEVELOPER = { name, email, website }` (pojawia się w polityce prywatności w grze).
+- [x] `game/js/core/config.js` → `C.DEVELOPER = { name, email, website }` (pojawia się w polityce prywatności w grze).
 - [ ] Opublikuj politykę prywatności pod publicznym adresem (np. Google Sites — wklej angielski tekst
       z `game/privacy.html` z tymi samymi danymi kontaktowymi co w `C.DEVELOPER`). Ten URL podajesz
       w Play Console i w wiadomości UMP w AdMob; strona musi być publiczna (sprawdź w oknie incognito).

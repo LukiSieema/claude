@@ -7,7 +7,7 @@
 
   C.VERSION = '1.0.0';
   // Fill in before publishing (shown in the in-game privacy policy and used by release checks).
-  C.DEVELOPER = { name: '', email: '', website: '' };
+  C.DEVELOPER = { name: 'Łukasz Galor', email: 'elogamer1@op.pl', website: '' };
   C.SAVE_KEY = 'neonhorde.save.v1';
 
   // ---------- World / run ----------

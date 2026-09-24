@@ -22,6 +22,6 @@
 ## Następne kroki (wymagają Ciebie)
 1. Otwórz `android/` w Android Studio, uruchom na emulatorze/telefonie (build debug z testowymi reklamami).
 2. AdMob: konto, 3 jednostki reklamowe, wiadomości zgody → ID do `android/gradle.properties`.
-3. `C.DEVELOPER` w `game/js/core/config.js`, publiczny URL polityki prywatności, klucz podpisu.
+3. Publiczny URL polityki prywatności (Google Sites), klucz podpisu (`C.DEVELOPER` jest już uzupełnione).
 4. Play Console wg `docs/RELEASE_CHECKLIST.md` (test zamknięty 12 osób × 14 dni dla nowych kont).
 5. Opcjonalnie: grafiki AI przez Pollinations (`tools/generate-art.sh`) po odblokowaniu hosta i klucza.
