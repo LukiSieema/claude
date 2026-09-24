@@ -5,6 +5,8 @@
 - [ ] Opublikuj politykę prywatności pod publicznym adresem, np. GitHub Pages z pliku `game/privacy.html`
       (repo → Settings → Pages). Ten URL podajesz w Play Console i w wiadomości UMP w AdMob.
 - [ ] Identyfikatory AdMob w `android/gradle.properties` (patrz `docs/ADMOB_SETUP.md`).
+      Wersje do testów zamkniętych/wewnętrznych mogą mieć `allowTestAds=true` (reklamy testowe Google);
+      **przed wersją produkcyjną** wpisz 4 ID i ustaw `allowTestAds=false`.
 - [ ] Wiadomości zgody RODO + stany USA opublikowane w AdMob.
 - [ ] `app-ads.txt` na Twojej domenie.
 - [ ] Klucz przesyłania (upload key):

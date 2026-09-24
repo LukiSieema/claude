@@ -18,7 +18,8 @@ val releaseAppId = gradleProp("ADMOB_APP_ID")
 val releaseBannerId = gradleProp("ADMOB_BANNER_ID")
 val releaseRewardedId = gradleProp("ADMOB_REWARDED_ID")
 val releaseInterstitialId = gradleProp("ADMOB_INTERSTITIAL_ID")
-val allowTestAds = project.hasProperty("allowTestAds")
+// allowTestAds=true (gradle.properties or -PallowTestAds=true): a release build for beta testing with Google's test ads.
+val allowTestAds = gradleProp("allowTestAds").equals("true", ignoreCase = true)
 val releaseUsesTestAds = listOf(releaseAppId, releaseBannerId, releaseRewardedId, releaseInterstitialId).any { it.isEmpty() }
 
 val keystoreProperties = Properties().apply {
@@ -109,6 +110,7 @@ val failOnTestAds = releaseUsesTestAds && !allowTestAds
 tasks.matching { it.name == "preReleaseBuild" }.configureEach {
     doFirst {
         if (failOnTestAds) throw GradleException(testAdsMessage)
+        if (releaseUsesTestAds) logger.warn("WARNING: this release build shows Google TEST ads (allowTestAds=true). Fine for beta testing, not for production.")
     }
 }
 
