@@ -2,8 +2,9 @@
 
 ## A. Przed pierwszym buildem wydania
 - [ ] `game/js/core/config.js` → `C.DEVELOPER = { name, email, website }` (pojawia się w polityce prywatności w grze).
-- [ ] Opublikuj politykę prywatności pod publicznym adresem, np. GitHub Pages z pliku `game/privacy.html`
-      (repo → Settings → Pages). Ten URL podajesz w Play Console i w wiadomości UMP w AdMob.
+- [ ] Opublikuj politykę prywatności pod publicznym adresem (np. Google Sites — wklej angielski tekst
+      z `game/privacy.html` z tymi samymi danymi kontaktowymi co w `C.DEVELOPER`). Ten URL podajesz
+      w Play Console i w wiadomości UMP w AdMob; strona musi być publiczna (sprawdź w oknie incognito).
 - [ ] Identyfikatory AdMob w `android/gradle.properties` (patrz `docs/ADMOB_SETUP.md`).
       Wersje do testów zamkniętych/wewnętrznych mogą mieć `allowTestAds=true` (reklamy testowe Google);
       **przed wersją produkcyjną** wpisz 4 ID i ustaw `allowTestAds=false`.
