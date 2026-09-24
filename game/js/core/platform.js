@@ -29,6 +29,11 @@
       const args = Array.prototype.slice.call(arguments, 1);
       try { return native[method].apply(native, args); } catch (e) { return undefined; }
     },
+    /** Fire-and-forget native call; false if the bridge method is missing or threw. */
+    bridge(method) {
+      if (!native || typeof native[method] !== 'function') return false;
+      try { native[method].apply(native, Array.prototype.slice.call(arguments, 1)); return true; } catch (e) { return false; }
+    },
 
     // ------------------------------------------------------------------ ads
     rewardedReady() {
@@ -36,20 +41,22 @@
       return true; // web preview always has a simulated ad
     },
 
-    /** Resolves true when the reward was earned. */
+    /**
+     * Resolves 'earned', 'skipped' (the ad was closed before the reward) or 'unavailable'.
+     * On Android the result always comes back through NHNative.onRewardResult, never from the call itself.
+     */
     showRewarded(placement) {
-      if (this.adBusy) return Promise.resolve(false);
+      if (this.adBusy) return Promise.resolve('unavailable');
       this.adBusy = true;
-      const done = (ok) => { this.adBusy = false; return ok; };
+      const done = (r) => { this.adBusy = false; return r; };
       if (native) {
         const id = reqSeq++;
         return new Promise((resolve) => {
-          pending.set('r' + id, (earned) => resolve(done(!!earned)));
-          const accepted = this.call('showRewarded', id, placement || 'default');
-          if (accepted === false) { pending.delete('r' + id); resolve(done(false)); }
+          pending.set('r' + id, (earned, shown) => resolve(done(earned ? 'earned' : shown ? 'skipped' : 'unavailable')));
+          if (!this.bridge('showRewarded', id, placement || 'default')) { pending.delete('r' + id); resolve(done('unavailable')); }
         });
       }
-      return this.webAdOverlay('rewarded', placement).then(done);
+      return this.webAdOverlay('rewarded', placement).then((ok) => done(ok ? 'earned' : 'skipped'));
     },
 
     showInterstitial(placement) {
@@ -59,8 +66,7 @@
         this.adBusy = true;
         return new Promise((resolve) => {
           pending.set('i' + id, (shown) => { this.adBusy = false; resolve(!!shown); });
-          const accepted = this.call('showInterstitial', id, placement || 'default');
-          if (accepted === false) { pending.delete('i' + id); this.adBusy = false; resolve(false); }
+          if (!this.bridge('showInterstitial', id, placement || 'default')) { pending.delete('i' + id); this.adBusy = false; resolve(false); }
         });
       }
       if (!this.webAds) return Promise.resolve(false);
@@ -79,7 +85,8 @@
 
     setBannerHeight(px) {
       this.bannerHeight = px;
-      document.documentElement.style.setProperty('--banner-h', px + 'px');
+      // keep a gap between the banner and the navigation buttons (AdMob: no ads right next to controls)
+      document.documentElement.style.setProperty('--banner-h', (px > 0 ? px + 8 : 0) + 'px');
       this.emit('banner', px);
     },
 
@@ -145,7 +152,7 @@
 
   // Callbacks invoked by the Android wrapper via evaluateJavascript.
   root.NHNative = {
-    onRewardResult(id, earned) { const cb = pending.get('r' + id); if (cb) { pending.delete('r' + id); cb(earned); } },
+    onRewardResult(id, earned, shown) { const cb = pending.get('r' + id); if (cb) { pending.delete('r' + id); cb(!!earned, shown !== false); } },
     onInterstitialClosed(id, shown) { const cb = pending.get('i' + id); if (cb) { pending.delete('i' + id); cb(shown); } },
     onBannerHeight(dp) { Platform.setBannerHeight(Math.max(0, Math.round(dp))); },
     onInsets(top, right, bottom, left) {
@@ -156,7 +163,22 @@
       Platform.emit('insets', Platform.insets);
     },
     onPause() { Platform.emit('pause'); },
-    onResume() { Platform.emit('resume'); },
+    onResume() {
+      // Safety net: an ad's result normally arrives as the game comes back. If it never does, settle the request
+      // (no reward) so the ad lock can never freeze the UI.
+      const open = Array.from(pending.keys());
+      if (open.length) {
+        setTimeout(() => {
+          for (const k of open) {
+            const cb = pending.get(k);
+            if (!cb) continue;
+            pending.delete(k);
+            if (k[0] === 'r') cb(false, true); else cb(false);
+          }
+        }, 4000);
+      }
+      Platform.emit('resume');
+    },
     onBack() { Platform.emit('back'); return true; },
     onConsent(canRequestAds) { Platform.emit('consent', !!canRequestAds); },
   };

@@ -124,12 +124,10 @@
       e.vx = nx * sp; e.vy = ny * sp;
       if (d < def.explode.trigger) {
         const h = this.hero;
-        e._alive = false;
-        this.kills++;
-        this.dropXp(e.x, e.y, def.xp * e.xpMult);
         if (U.dist(e.x, e.y, h.x, h.y) < def.explode.radius + h.r) this.damageHero(e.dmg, e.x, e.y);
         this.ev.emit('explosion', e.x, e.y, def.explode.radius, def.color, false);
-        this.ev.emit('kill', e);
+        // counts as a kill (XP, and an elite still drops its crate) but without random drops
+        this.killEnemy(e, true);
       }
       return;
     }
@@ -192,8 +190,7 @@
         break;
       }
       case 'serpent': {
-        e.age += dt;
-        const a = Math.atan2(dy, dx) + Math.sin(e.age * 2.2) * 0.9;
+        const a = Math.atan2(dy, dx) + Math.sin(e.age * 4.4) * 0.9;
         e.vx = Math.cos(a) * e.speed * slow; e.vy = Math.sin(a) * e.speed * slow;
         e.trail.unshift(e.x, e.y);
         if (e.trail.length > 1200) e.trail.length = 1200;

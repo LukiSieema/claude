@@ -100,3 +100,80 @@ test('XP gems merge when the pickup cap is reached', () => {
   assert.ok(gems.length <= C.MAX_GEMS);
   assert.equal(gems.reduce((a, g) => a + g.value, 0), C.MAX_GEMS + 40, 'no XP is lost');
 });
+
+test('two crates grabbed in the same frame are both opened, the boss crate is not', () => {
+  const w = world(1, 12);
+  const opened = [];
+  w.ev.on('crateReady', () => opened.push(w.state));
+  for (const g of w.pickups.active) g._alive = false;
+  w.pickups.sweep();
+  w.dropPickup('crate', w.hero.x, w.hero.y, 1).magnet = true;
+  w.dropPickup('crate', w.hero.x, w.hero.y, 1).magnet = true;
+  w.update(C.FIXED_DT);
+  assert.deepEqual(opened, ['crate']);
+  w.finishCrate();
+  assert.deepEqual(opened, ['crate', 'crate'], 'the second crate opens right after the first');
+  w.finishCrate();
+  assert.equal(w.state, 'play');
+  w.finishCrate(); // a stray second tap changes nothing
+  assert.equal(w.state, 'play');
+  w.state = 'won';
+  w.dropPickup('crate', w.hero.x, w.hero.y, 1).magnet = true;
+  w.update(C.FIXED_DT);
+  assert.equal(w.pendingCrates, 0);
+});
+
+test('"take all" is only offered when every card still fits the slot limits', () => {
+  const w = world(1, 13);
+  for (const id of C.WEAPON_IDS) if (!w.weapon(id) && w.weapons.length < C.MAX_WEAPONS - 1) w.addWeapon(id, 1);
+  const free = C.WEAPON_IDS.filter((id) => !w.weapon(id));
+  const two = [{ kind: 'weapon', id: free[0], level: 1 }, { kind: 'weapon', id: free[1], level: 1 }, { kind: 'passive', id: 'magnet', level: 1 }];
+  assert.equal(w.fitsAll(two), false);
+  for (const c of two) w.applyChoice(c);
+  assert.equal(w.weapons.length, C.MAX_WEAPONS, 'applyChoice never exceeds the cap');
+});
+
+test('a homing missile drops a target that died and came back from the pool', () => {
+  const w = world(1, 14);
+  const e = w.enemies.active[0];
+  const w0 = w.addWeapon('drone', 1);
+  w0.drones = [];
+  const p = w.projectiles.get();
+  p.kind = 'missile'; p.x = e.x; p.y = e.y + 200; p.target = e; p.targetId = e.id; p.life = 2; p.speed = 380; p.angle = 0;
+  w.killEnemy(e, true);
+  w.enemies.sweep();
+  const reborn = w.spawnEnemy('glitchling', { x: 5000, y: 5000 });
+  assert.equal(reborn, e, 'the pool hands the same object back');
+  w.rebuildHash();
+  w.updateProjectiles(C.FIXED_DT);
+  assert.notEqual(p.target, reborn);
+});
+
+test('an elite bomber that blows up still counts as an elite kill and drops its crate', () => {
+  const w = world(1, 15);
+  const b = w.spawnEnemy('bomber', { x: w.hero.x + 20, y: w.hero.y }, true);
+  const elites = w.elitesKilled;
+  w.enemyAI(b, C.FIXED_DT, w.hero.x - b.x, w.hero.y - b.y, 20);
+  assert.equal(b._alive, false);
+  assert.equal(w.elitesKilled, elites + 1);
+  assert.ok(w.pickups.active.some((g) => g._alive && g.kind === 'crate'));
+});
+
+test('frost nova reaches a boss whose edge is inside the blast', () => {
+  const w = world(1, 16);
+  for (const e of w.enemies.active) e._alive = false;
+  w.enemies.sweep();
+  const wf = w.addWeapon('frost', 5);
+  const R = w.wstats(wf).radius * w.mod.area;
+  w.t = C.RUN_LENGTH; w.spawnBoss();
+  const boss = w.boss;
+  // hero just left of a hash-cell border: the boss centre sits in the next cell, beyond R + 40
+  w.hero.x = 64 * 3 - (R + 40) - 4; w.hero.y = 0;
+  boss.x = w.hero.x + R + boss.r - 2; boss.y = w.hero.y;
+  assert.ok(Math.floor(boss.x / 64) > Math.floor((w.hero.x + R + 40) / 64), 'test setup: boss is outside the old query');
+  const hp = boss.hp;
+  w.rebuildHash();
+  wf.timer = 0;
+  w.wFrost(wf, C.FIXED_DT);
+  assert.ok(boss.hp < hp);
+});

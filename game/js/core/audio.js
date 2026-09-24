@@ -194,6 +194,8 @@
     schedule() {
       if (!this.ctx || this.ctx.state !== 'running') return;
       const m = this.music;
+      // music muted: keep the clock moving but create no nodes (saves battery)
+      if (!this.musicOn) { m.nextTime = this.ctx.currentTime + 0.05; return; }
       const bpm = m.mode === 'boss' ? 132 : m.mode === 'battle' ? 116 : 92;
       const stepDur = 60 / bpm / 4;
       while (m.nextTime < this.ctx.currentTime + 0.15) {

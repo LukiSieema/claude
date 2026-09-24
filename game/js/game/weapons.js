@@ -177,7 +177,7 @@
       const p = this.projectiles.get();
       p.kind = 'missile'; p.x = d.x; p.y = d.y; p.angle = d.a; p.speed = 380;
       p.vx = Math.cos(d.a) * p.speed; p.vy = Math.sin(d.a) * p.speed;
-      p.r = 5; p.target = tgt; p.life = 2; p.pierce = 1;
+      p.r = 5; p.target = tgt; p.targetId = tgt.id; p.life = 2; p.pierce = 1;
       p.radius = s.radius * this.mod.area; p.dmg = this.baseDmg(s);
       p.wi = w.wi; p.evo = w.evolved; p.color = w.evolved ? C.EVOLUTIONS.swarm.color : C.WEAPONS.drone.color;
       this.ev.emit('shoot', 'drone');
@@ -213,7 +213,7 @@
     w.timer = s.cd * this.mod.cd;
     const R = s.radius * this.mod.area;
     const dmg = this.baseDmg(s);
-    this.hash.query(h.x, h.y, R + 40, (e) => {
+    this.hash.query(h.x, h.y, R + 60, (e) => { // margin covers the largest enemy radius (bosses)
       if (!e._alive) return;
       const rr = R + e.r;
       if (U.dist2(e.x, e.y, h.x, h.y) > rr * rr) return;
@@ -245,7 +245,7 @@
       const p = this.projectiles.get();
       p.kind = 'rocket'; p.x = h.x; p.y = h.y; p.angle = a + this.rng.range(-0.3, 0.3); p.speed = s.speed;
       p.vx = Math.cos(p.angle) * 140; p.vy = Math.sin(p.angle) * 140;
-      p.r = 7; p.target = i === 0 ? tgt : (this.randomEnemyNear(h.x, h.y, 460) || tgt); p.life = 3; p.pierce = 1;
+      p.r = 7; p.target = i === 0 ? tgt : (this.randomEnemyNear(h.x, h.y, 460) || tgt); p.targetId = p.target.id; p.life = 3; p.pierce = 1;
       p.radius = s.radius * this.mod.area; p.dmg = this.baseDmg(s); p.t = 0;
       p.wi = w.wi; p.evo = w.evolved; p.color = w.evolved ? C.EVOLUTIONS.nuke.color : C.WEAPONS.rocket.color;
     }
@@ -312,7 +312,11 @@
         case 'missile':
         case 'rocket': {
           p.t += dt;
-          if (!p.target || !p.target._alive) p.target = this.nearestEnemy(p.x, p.y, 380);
+          // enemies are pooled: a dead target can come back as a new enemy far away, so compare ids too
+          if (!p.target || !p.target._alive || p.target.id !== p.targetId) {
+            p.target = this.nearestEnemy(p.x, p.y, 380);
+            p.targetId = p.target ? p.target.id : 0;
+          }
           const sp = p.kind === 'rocket' ? Math.min(p.speed, 140 + p.t * 900) : p.speed;
           if (p.target) {
             const want = Math.atan2(p.target.y - p.y, p.target.x - p.x);

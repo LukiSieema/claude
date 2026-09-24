@@ -24,6 +24,7 @@
     this.xp = 0;
     this.xpNeed = C.xpToNext(1);
     this.pendingLevels = 0;
+    this.pendingCrates = 0;
     this.kills = 0;
     this.elitesKilled = 0;
     this.coins = 0;
@@ -68,7 +69,7 @@
     this.projectiles = U.Pool(() => ({ hits: [] }), (p) => {
       p.x = 0; p.y = 0; p.vx = 0; p.vy = 0; p.r = 4; p.dmg = 0; p.pierce = 1; p.life = 1; p.kind = '';
       p.hits.length = 0; p.t = 0; p.tx = 0; p.ty = 0; p.sx = 0; p.sy = 0; p.dur = 0; p.radius = 0;
-      p.target = null; p.state = 0; p.range = 0; p.speed = 0; p.color = '#fff'; p.wi = 0; p.angle = 0; p.spin = 0; p.evo = false;
+      p.target = null; p.targetId = 0; p.state = 0; p.range = 0; p.speed = 0; p.color = '#fff'; p.wi = 0; p.angle = 0; p.spin = 0; p.evo = false;
     });
     this.bullets = U.Pool(() => ({}), (b) => { b.x = 0; b.y = 0; b.vx = 0; b.vy = 0; b.r = 6; b.dmg = 0; b.life = 4; b.color = '#ff3d7f'; });
     this.zones = U.Pool(() => ({}), (z) => { z.x = 0; z.y = 0; z.r = 0; z.life = 0; z.maxLife = 0; z.tick = 0; z.dmg = 0; z.kind = ''; z.slow = 0; });
@@ -152,10 +153,23 @@
     }
     this.enemies.sweep(); this.projectiles.sweep(); this.bullets.sweep(); this.zones.sweep(); this.pickups.sweep();
 
-    if (this.pendingLevels > 0 && this.state === 'play') {
+    if (this.state === 'play') this.nextPrompt();
+  };
+
+  /** Opens the next queued crate or level-up (crates first). Returns true if the run is now waiting on the player. */
+  P.nextPrompt = function () {
+    if (this.pendingCrates > 0) {
+      this.pendingCrates--;
+      this.state = 'crate';
+      this.ev.emit('crateReady');
+      return true;
+    }
+    if (this.pendingLevels > 0) {
       this.state = 'levelup';
       this.ev.emit('levelupReady', this.level);
+      return true;
     }
+    return false;
   };
 
   P.rebuildHash = function () {
@@ -496,16 +510,13 @@
         this.shake = Math.max(this.shake, 1);
         break;
       case 'crate':
-        if (this.state === 'play') { this.pendingCrate = true; }
+        // queued, so crates grabbed in the same frame (or just before dying) are all opened;
+        // the boss crate after victory is only a visual, the rewards come on the results screen
+        if (this.state !== 'won') this.pendingCrates++;
         break;
       default: break;
     }
     this.ev.emit('pickup', g.kind, g.value, g.x, g.y);
-    if (this.pendingCrate && this.state === 'play') {
-      this.pendingCrate = false;
-      this.state = 'crate';
-      this.ev.emit('crateReady');
-    }
   };
 
   P.addXp = function (v) {
@@ -553,11 +564,24 @@
     return picks;
   };
 
+  /** True if every choice can still be applied without breaking the weapon/passive slot limits. */
+  P.fitsAll = function (choices) {
+    let weapons = this.weapons.length, passives = Object.keys(this.passives).length;
+    for (const c of choices) {
+      if (c.kind === 'weapon' && !this.weapon(c.id)) weapons++;
+      else if (c.kind === 'passive' && !this.passives[c.id]) passives++;
+    }
+    return weapons <= C.MAX_WEAPONS && passives <= C.MAX_PASSIVES;
+  };
+
   P.applyChoice = function (c) {
     if (c.kind === 'weapon') {
       const w = this.weapon(c.id);
-      if (w) w.level = Math.min(C.MAX_SKILL_LEVEL, w.level + 1); else this.addWeapon(c.id, 1);
+      if (w) w.level = Math.min(C.MAX_SKILL_LEVEL, w.level + 1);
+      else if (this.weapons.length < C.MAX_WEAPONS) this.addWeapon(c.id, 1);
+      else return;
     } else if (c.kind === 'passive') {
+      if (!this.passives[c.id] && Object.keys(this.passives).length >= C.MAX_PASSIVES) return;
       this.passives[c.id] = Math.min(C.MAX_SKILL_LEVEL, (this.passives[c.id] || 0) + 1);
     } else if (c.kind === 'heal') {
       this.healHero(0.4);
@@ -570,10 +594,11 @@
 
   /** Called by UI after the player picked a card (or all cards). */
   P.finishLevelUp = function () {
+    if (this.state !== 'levelup') return; // ignore a second tap on an already closed card
     this.pendingLevels = Math.max(0, this.pendingLevels - 1);
     if (this.pendingLevels > 0) { this.ev.emit('levelupReady', this.level); return; }
     this.state = 'play';
-    if (this.pendingCrate) { this.pendingCrate = false; this.state = 'crate'; this.ev.emit('crateReady'); }
+    this.nextPrompt();
   };
 
   // ------------------------------------------------------------------ crate
@@ -605,8 +630,9 @@
   };
 
   P.finishCrate = function () {
+    if (this.state !== 'crate') return;
     this.state = 'play';
-    if (this.pendingLevels > 0) { this.state = 'levelup'; this.ev.emit('levelupReady', this.level); }
+    this.nextPrompt();
   };
 
   // --------------------------------------------------------------- queries

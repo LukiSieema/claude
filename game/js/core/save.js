@@ -32,7 +32,6 @@
       daily: null,
       login: { lastDay: 0, index: 0 },
       freeGoldReadyAt: now,
-      adSilverReadyAt: now,
       stats: { kills: 0, runs: 0, bosses: 0, elites: 0, evolutions: 0, merges: 0, bestRunLevel: 0, adsTotal: 0, playTime: 0, chests: 0 },
       codex: {},
       achievements: {},
@@ -47,16 +46,24 @@
     // Future versions: transform older saves step by step here.
     if (!s.v || s.v < 1) s.v = 1;
     U.fillDefaults(s, defaults(now));
-    // integrity: equipped uids must exist
-    for (const slot of C.SLOTS) {
-      const uid = s.equipped[slot];
-      if (uid && !s.inventory.some((it) => it.uid === uid)) s.equipped[slot] = 0;
-    }
-    s.inventory = s.inventory.filter((it) => C.ITEMS[it.id] && it.rarity >= 0 && it.rarity < C.RARITIES.length);
+    delete s.adSilverReadyAt; // unused since 1.0.0
+    s.inventory = (Array.isArray(s.inventory) ? s.inventory : []).filter((it) => it && C.ITEMS[it.id] && it.rarity >= 0 && it.rarity < C.RARITIES.length);
     for (const it of s.inventory) {
       it.level = U.clamp(it.level | 0, 1, C.RARITIES[it.rarity].maxLevel);
       if (typeof it.spent !== 'number') it.spent = 0;
     }
+    // integrity (after dropping invalid items): equipped uids must exist and sit in their own slot
+    for (const slot of C.SLOTS) {
+      const uid = s.equipped[slot];
+      const it = uid ? s.inventory.find((o) => o.uid === uid) : null;
+      if (uid && (!it || C.ITEMS[it.id].slot !== slot)) s.equipped[slot] = 0;
+    }
+    // a weapon is always equipped (it decides the starting skill)
+    if (!s.equipped.weapon) {
+      const w = s.inventory.find((o) => C.ITEMS[o.id].slot === 'weapon');
+      if (w) s.equipped.weapon = w.uid;
+    }
+    s.nextUid = Math.max(Number(s.nextUid) || 1, ...s.inventory.map((o) => o.uid + 1));
     s.coins = Math.max(0, Number(s.coins) || 0);
     s.gems = Math.max(0, Number(s.gems) || 0);
     s.scrap = Math.max(0, Number(s.scrap) || 0);

@@ -49,9 +49,10 @@ test('upgrade costs coins + scrap, respects max level and counts for the quest',
   assert.equal(Meta.upgradeCheck(s, uid).reason, 'coins');
 });
 
-test('merge: 3 same-slot same-rarity items → next rarity, refunds fodder coins', () => {
+test('merge: 3 same-slot same-rarity items → next rarity, keeps the best level, refunds the rest', () => {
   const s = fresh();
-  const main = Meta.getItem(s, s.equipped.armor); // vest, common
+  const main = Meta.getItem(s, s.equipped.armor); // vest, common, Lv 1
+  main.spent = 0;
   const a = Meta.addItem(s, 'plate', 0, 4); a.spent = 300;
   const b = Meta.addItem(s, 'vest', 0, 2); b.spent = 100;
   const coins = s.coins;
@@ -59,8 +60,43 @@ test('merge: 3 same-slot same-rarity items → next rarity, refunds fodder coins
   const r = Meta.merge(s, main.uid);
   assert.equal(r.item.rarity, 1);
   assert.equal(r.item.level, 4, 'keeps the highest level');
-  assert.equal(s.coins, coins + 400);
+  assert.equal(r.item.spent, 300, 'the coins paid for that level stay on the item');
+  assert.equal(s.coins, coins + 100, 'only the coins of the discarded levels come back');
   assert.equal(s.inventory.filter((i) => C.ITEMS[i.id].slot === 'armor').length, 1);
+});
+
+test('merge never makes levels free: upgrading fodder then merging costs the same as upgrading the item', () => {
+  const s = fresh();
+  s.coins = 1e6; s.scrap = 1e6;
+  const main = Meta.getItem(s, s.equipped.armor);
+  const f1 = Meta.addItem(s, 'vest', 0, 1);
+  Meta.addItem(s, 'vest', 0, 1);
+  for (let i = 0; i < 9; i++) Meta.upgradeItem(s, f1.uid);
+  const before = s.coins;
+  Meta.merge(s, main.uid);
+  assert.equal(main.level, 10);
+  assert.equal(s.coins, before, 'no coins refunded for the level that was carried over');
+});
+
+test('save migration drops invalid items before checking equipped slots', () => {
+  const s = Save.defaults(0);
+  s.inventory.push({ uid: 9, id: 'removed_item', rarity: 0, level: 1, spent: 0 });
+  s.equipped.weapon = 9;
+  const m = Save.migrate(JSON.parse(JSON.stringify(s)), 0);
+  assert.ok(m.inventory.every((it) => C.ITEMS[it.id]));
+  assert.equal(C.ITEMS[Meta.getItem(m, m.equipped.weapon).id].slot, 'weapon', 'a real weapon is equipped again');
+  assert.ok(m.nextUid > Math.max(...m.inventory.map((it) => it.uid)));
+});
+
+test('coin cache price and amount come from config', () => {
+  const s = fresh();
+  s.gems = C.COIN_CACHE.gemCost;
+  const coins = s.coins;
+  const got = Meta.buyCoinCache(s);
+  assert.equal(got, Meta.coinCacheAmount(s));
+  assert.equal(s.coins, coins + got);
+  assert.equal(s.gems, 0);
+  assert.equal(Meta.buyCoinCache(s), 0, 'not enough gems');
 });
 
 test('merge: weapons need the same weapon type', () => {
@@ -224,4 +260,15 @@ test('achievements pay gems once', () => {
   assert.equal(s.gems, gems + 50);
   assert.equal(Meta.claimAchievement(s, 'kill1'), 0);
   assert.equal(Meta.claimAchievement(s, 'kill2'), 0);
+});
+
+test('reminders never fire during the night', () => {
+  const at = (h, m) => new Date(2026, 8, 24, h, m || 0, 0).getTime();
+  assert.equal(Meta.notifyDelay(at(12), 3600), 3600, 'day time: unchanged');
+  const late = Meta.notifyDelay(at(21), 2 * 3600); // would fire at 23:00
+  assert.equal(new Date(at(21) + late * 1000).getHours(), C.NOTIFY_QUIET.to);
+  assert.equal(new Date(at(21) + late * 1000).getDate(), 25, 'next morning');
+  const early = Meta.notifyDelay(at(1), 3600); // would fire at 2:00
+  assert.equal(new Date(at(1) + early * 1000).getHours(), C.NOTIFY_QUIET.to);
+  assert.equal(new Date(at(1) + early * 1000).getDate(), 24, 'same morning');
 });

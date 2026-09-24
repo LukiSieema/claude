@@ -12,8 +12,8 @@ zatrzyma, żeby przez pomyłkę nie opublikować gry z testowymi reklamami (któ
 4. Utwórz 3 jednostki reklamowe i skopiuj ich ID (`ca-app-pub-…/…`):
    | Jednostka | Format | Gdzie w grze |
    |---|---|---|
-   | `NH_Banner` | Baner (adaptacyjny) | lobby, pauza, wyniki (nigdy w trakcie walki) |
-   | `NH_Rewarded` | Z nagrodą | wszystkie 12 miejsc „▶” (wskrzeszenie, ×2, ×3 offline, −80% czasu itd.) |
+   | `NH_Banner` | Baner (adaptacyjny) | lobby i ekran wyników (nigdy w trakcie walki) |
+   | `NH_Rewarded` | Z nagrodą | wszystkie 13 miejsc „▶” (wskrzeszenie, ×2, ×3 offline, −80% czasu itd.) |
    | `NH_Interstitial` | Pełnoekranowa | powrót z wyniku do lobby, maks. raz na 4 min, nie w pierwszych 3 rundach |
 
    Dla reklam z nagrodą ustaw w AdMob nagrodę np. `1 reward` — gra sama decyduje, co przyznać.

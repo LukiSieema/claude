@@ -58,7 +58,6 @@
       $('#topbar').innerHTML =
         '<div class="avatar" data-act="settings"><canvas id="avatar-canvas" width="100" height="100"></canvas>' +
         '<div class="avatar-lv">' + t('lv', { n: s.account.level }) + '</div></div>' +
-        '<div class="grow" style="min-width:40px"><div class="progress violet" style="height:8px;max-width:90px"><i style="width:' + Math.round(s.account.xp / need * 100) + '%"></i></div></div>' +
         '<div class="currencies">' +
         '<div class="pill" data-cur="energy" data-act="energy">' + UI.cur('energy') + '<span>' + s.energy + '/' + C.ENERGY.max + '</span><span class="plus">+</span></div>' +
         '<div class="pill" data-cur="coin">' + UI.cur('coin') + '<span>' + U.fmt(s.coins) + '</span></div>' +
@@ -70,12 +69,18 @@
       ctx.clearRect(0, 0, 100, 100);
       const g = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
       g.addColorStop(0, '#3b2a8f'); g.addColorStop(1, '#150f3a');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(50, 50, 48, 0, U.TAU); ctx.fill();
-      ctx.strokeStyle = '#2ef2ff'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(50, 50, 41, 0, U.TAU); ctx.fill();
+      ctx.strokeStyle = '#2ef2ff'; ctx.lineWidth = 3; ctx.stroke();
       const sp = S.hero();
-      ctx.save(); ctx.translate(50, 52); ctx.rotate(-0.3);
-      ctx.drawImage(sp.c, -40, -40, 80, 80);
+      ctx.save(); ctx.beginPath(); ctx.arc(50, 50, 39.5, 0, U.TAU); ctx.clip();
+      ctx.translate(50, 52); ctx.rotate(-0.3);
+      ctx.drawImage(sp.c, -44, -44, 88, 88);
       ctx.restore();
+      // account XP as a ring around the avatar (saves the width a separate bar needed on narrow phones)
+      const k = U.clamp(s.account.xp / need, 0, 1);
+      ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.strokeStyle = '#2a2266'; ctx.beginPath(); ctx.arc(50, 50, 47, 0, U.TAU); ctx.stroke();
+      if (k > 0) { ctx.strokeStyle = '#b562ff'; ctx.beginPath(); ctx.arc(50, 50, 47, -Math.PI / 2, -Math.PI / 2 + U.TAU * k); ctx.stroke(); }
     },
 
     onTopbar(e) {
@@ -238,10 +243,9 @@
       html += '<div class="section-title">' + t('shop_resources') + '</div><div class="shop-grid">';
       html += '<div class="card shop-item"><span class="ico ico-energy" style="width:60px;height:60px"></span><div class="name">' + t('energyPack') + ' +' + C.ENERGY.gemAmount + '</div>' +
         '<button class="btn btn-sm btn-violet btn-wide" data-act="energy-gems">' + UI.cur('gem') + C.ENERGY.gemCost + '</button></div>';
-      const cache = Math.round(M.patrolRates(s).coins * 2 * M.heroStats(s).coinMult);
       html += '<div class="card shop-item"><span class="ico ico-coin" style="width:60px;height:60px"></span><div class="name">' + t('coinCache') + '</div>' +
-        '<div class="small muted">' + t('coinCacheDesc', { h: 2 }) + ' · ' + U.fmt(cache) + '</div>' +
-        '<button class="btn btn-sm btn-violet btn-wide" data-act="coin-cache">' + UI.cur('gem') + '40</button></div>';
+        '<div class="small muted">' + t('coinCacheDesc', { h: C.COIN_CACHE.hours }) + ' · ' + U.fmt(M.coinCacheAmount(s)) + '</div>' +
+        '<button class="btn btn-sm btn-violet btn-wide" data-act="coin-cache">' + UI.cur('gem') + C.COIN_CACHE.gemCost + '</button></div>';
       html += '</div>';
       return html;
     },
@@ -425,7 +429,7 @@
         const val = M.statValue(s, a.stat);
         const claimed = !!s.achievements[a.id];
         const ready = M.achievementClaimable(s, a);
-        html += '<div class="quest"><div class="grow"><div>' + t('ach_' + a.stat, { n: U.fmt(a.target) }) + '</div>' +
+        html += '<div class="quest"><div class="grow"><div>' + t('ach_' + a.stat, { n: a.target }) + '</div>' +
           '<div class="progress violet"><i style="width:' + Math.min(100, val / a.target * 100) + '%"></i></div></div>' +
           (claimed ? '<button class="btn btn-xs btn-ghost" disabled>✓</button>'
             : '<button class="btn btn-xs ' + (ready ? 'btn-violet' : 'btn-ghost') + '" data-act="ach" data-id="' + a.id + '" ' + (ready ? '' : 'disabled') + '>' + UI.cur('gem') + a.gems + '</button>') + '</div>';
@@ -472,7 +476,7 @@
         }
         case 'ad-silver': {
           if (await UI.watchAd('free_silver')) {
-            const items = M.claimAdSilver(s, G.now(), G.rng);
+            const items = M.claimAdSilver(s, G.rng);
             G.persist(); this.refresh();
             if (items) this.openCrates('silver', items);
           }
@@ -497,10 +501,8 @@
         }
         case 'energy-gems': this.buyEnergyGems(); break;
         case 'coin-cache': {
-          if (s.gems < 40) { A.play('deny'); UI.toast(t('notEnoughGems'), 'bad'); break; }
-          s.gems -= 40;
-          const coins = Math.round(M.patrolRates(s).coins * 2 * M.heroStats(s).coinMult);
-          s.coins += coins;
+          const coins = M.buyCoinCache(s);
+          if (!coins) { A.play('deny'); UI.toast(t('notEnoughGems'), 'bad'); break; }
           G.persist(); this.refresh();
           UI.rewardPopup(t('coinCache'), { coins });
           break;
@@ -594,9 +596,9 @@
       });
       m.el.addEventListener('click', async (e) => {
         const b = e.target.closest('[data-m]');
-        if (!b || b.disabled) return;
+        if (!b || b.disabled || m.closed) return;
         const mode = b.dataset.m;
-        if (mode === 'ad' && !(await UI.watchAd('quick_patrol'))) return;
+        if (mode === 'ad' && (!(await UI.watchAd('quick_patrol')) || m.closed)) return;
         if (mode === 'gems' && s.gems < q.gemCost) { A.play('deny'); UI.toast(t('notEnoughGems'), 'bad'); return; }
         const r = M.quickPatrol(s, mode, G.rng);
         if (!r) return;
@@ -618,10 +620,10 @@
       this.tick();
       m.el.addEventListener('click', async (e) => {
         const b = e.target.closest('[data-e]');
-        if (!b || b.disabled) return;
+        if (!b || b.disabled || m.closed) return;
         if (b.dataset.e === 'ad') {
           if (s.daily.energyAds >= C.ADS.energyPerDay) return;
-          if (!(await UI.watchAd('energy'))) return;
+          if (!(await UI.watchAd('energy')) || m.closed) return;
           s.daily.energyAds++;
           s.energy += C.ENERGY.adAmount;
           G.persist(); m.close(); this.refresh();
@@ -650,9 +652,14 @@
       });
       m.el.addEventListener('click', async (e) => {
         const b = e.target.closest('[data-w]');
-        if (!b || b.disabled) return;
-        let mult = Number(b.dataset.w);
-        if (mult === 3) { b.disabled = true; if (!(await UI.watchAd('offline_x3'))) { b.disabled = false; return; } }
+        if (!b || b.disabled || m.closed) return;
+        const mult = Number(b.dataset.w);
+        if (mult === 3) {
+          b.disabled = true;
+          const ok = await UI.watchAd('offline_x3');
+          if (m.closed) return;
+          if (!ok) { b.disabled = false; return; }
+        }
         const r = M.claimPatrol(s, G.now(), mult, G.rng);
         G.persist(); m.close(); this.refresh();
         UI.rewardPopup(t('patrol') + (mult > 1 ? ' ×' + mult : ''), r);
@@ -688,6 +695,7 @@
           '<button class="btn btn-ghost btn-wide" data-x="guide">' + t('evoGuide') + '</button>' +
           (PF.isNative && PF.privacyOptionsRequired() ? '<button class="btn btn-ghost btn-wide" data-x="privacy-options">' + t('privacyOptions') + '</button>' : '') +
           '<button class="btn btn-ghost btn-wide" data-x="policy">' + t('privacyPolicy') + '</button>' +
+          '<button class="btn btn-ghost btn-wide" data-x="licenses">' + t('licenses') + '</button>' +
           '<button class="btn btn-gold btn-wide" data-x="rate">★ ' + t('rateGame') + '</button>' +
           '<button class="btn btn-rose btn-sm" data-x="reset">' + t('resetProgress') + '</button></div>' +
           '<div class="center small muted" style="margin-top:10px">' + t('version', { v: PF.appVersion() }) + '</div>',
@@ -720,6 +728,7 @@
         if (x.dataset.x === 'guide') { m.close(); this.evoGuide(); }
         else if (x.dataset.x === 'privacy-options') PF.openPrivacyOptions();
         else if (x.dataset.x === 'policy') this.policyModal();
+        else if (x.dataset.x === 'licenses') this.licensesModal();
         else if (x.dataset.x === 'rate') { s.rated = true; G.persist(); PF.rateApp(); }
         else if (x.dataset.x === 'reset') {
           if (await UI.confirm(t('resetConfirm'), t('resetProgress'), true)) G.resetProgress();
@@ -727,11 +736,23 @@
       });
     },
 
+    licensesModal() {
+      const row = (name, text) => '<div style="margin:10px 0"><div class="hl">' + name + '</div><div class="small muted">' + text + '</div></div>';
+      UI.modal({
+        dismiss: true, closeBtn: true,
+        html: '<div class="modal-title">' + t('licenses') + '</div><div class="modal-sub">' + t('licensesIntro') + '</div>' +
+          row('Fredoka', '© 2016 The Fredoka Project Authors · SIL Open Font License 1.1 (fonts/OFL.txt) · ' + t('licensesFont')) +
+          row('AndroidX, Kotlin', 'Apache License 2.0 · https://www.apache.org/licenses/LICENSE-2.0') +
+          row('Google Mobile Ads SDK, User Messaging Platform, Play In-App Review', 'Google APIs Terms of Service · https://developers.google.com/terms') +
+          '<div class="small muted" style="margin-top:12px">' + t('licensesOwn') + '</div>',
+      });
+    },
+
     policyModal() {
       UI.modal({
         dismiss: true, closeBtn: true,
         html: '<div class="modal-title">' + t('privacyPolicy') + '</div>' +
-          '<iframe src="privacy.html" title="' + t('privacyPolicy') + '" style="width:100%;height:60vh;border:0;border-radius:12px;background:#fff"></iframe>',
+          '<iframe src="privacy.html?lang=' + NH.I18N.lang + '" title="' + t('privacyPolicy') + '" style="width:100%;height:60vh;border:0;border-radius:12px;background:#fff"></iframe>',
       });
     },
   };

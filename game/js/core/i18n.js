@@ -5,7 +5,6 @@
 
   // key: [English, Polish]
   const S = {
-    title: ['Neon Horde', 'Neon Horde'],
     subtitle: ['Survivor Arena', 'Arena Przetrwania'],
     loading: ['Loading…', 'Ładowanie…'],
     tapToStart: ['Tap to start', 'Dotknij, aby zacząć'],
@@ -26,7 +25,6 @@
     bestTime: ['Cleared in {t}', 'Ukończono w {t}'],
     survived: ['Best survival {t}', 'Najdłużej przetrwano {t}'],
     notPlayed: ['Survive 8:00 and defeat the boss', 'Przetrwaj 8:00 i pokonaj bossa'],
-    locked: ['Locked', 'Zablokowany'],
     unlockHint: ['Clear chapter {n} to unlock', 'Ukończ rozdział {n}, aby odblokować'],
     start: ['Start', 'Start'],
     recommended: ['Recommended power {n}', 'Zalecana moc {n}'],
@@ -38,7 +36,6 @@
     noEnergy: ['Not enough energy', 'Za mało energii'],
     energyFullIn: ['+1 in {t}', '+1 za {t}'],
     energyFull: ['Energy full', 'Energia pełna'],
-    getEnergy: ['Get energy', 'Zdobądź energię'],
     energyAd: ['+{n} energy', '+{n} energii'],
     energyGems: ['+{n} for {g}', '+{n} za {g}'],
     adsLeftToday: ['{n} left today', 'Pozostało dziś: {n}'],
@@ -58,6 +55,7 @@
 
     watchAd: ['Watch ad', 'Obejrzyj reklamę'],
     adUnavailable: ['No ad available right now — try again in a moment', 'Reklama chwilowo niedostępna — spróbuj za chwilę'],
+    adNotCompleted: ['Watch the whole ad to get the reward', 'Obejrzyj całą reklamę, aby odebrać nagrodę'],
     adTracker: ['Ad bonus track', 'Bonusy za reklamy'],
     adTrackerDesc: ['Every ad you watch today fills the track', 'Każda obejrzana dziś reklama wypełnia pasek'],
     adsWatched: ['{n}/{m} ads', '{n}/{m} reklam'],
@@ -79,7 +77,6 @@
     coinCache: ['Coin cache', 'Skarbiec monet'],
     coinCacheDesc: ['{h}h of patrol coins', 'Monety z {h} h patrolu'],
     energyPack: ['Energy pack', 'Pakiet energii'],
-    dropRates: ['Drop rates', 'Szanse'],
 
     rarity_common: ['Common', 'Zwykły'], rarity_great: ['Great', 'Dobry'], rarity_rare: ['Rare', 'Rzadki'],
     rarity_epic: ['Epic', 'Epicki'], rarity_legendary: ['Legendary', 'Legendarny'], rarity_mythic: ['Mythic', 'Mityczny'],
@@ -95,12 +92,11 @@
     item_utility: ['Utility Belt', 'Pas Taktyczny'], item_shieldbelt: ['Shield Belt', 'Pas Tarczy'],
     item_chip: ['Data Chip', 'Chip Danych'], item_pendant: ['Plasma Pendant', 'Wisior Plazmy'],
 
-    equipped: ['Equipped', 'Założone'],
     inventory: ['Backpack', 'Plecak'],
     emptyInventory: ['Crates and cleared chapters drop new gear', 'Nowy ekwipunek wypada ze skrzyń i ukończonych rozdziałów'],
     mergeAll: ['Merge all', 'Połącz wszystko'],
     mergeNone: ['Nothing to merge yet', 'Na razie nie ma czego łączyć'],
-    merged: ['Merged {n} items!', 'Połączono {n} przedmiotów!'],
+    merged: ['Merged {n} [[n:item|items]]!', 'Połączono {n} [[n:przedmiot|przedmioty|przedmiotów]]!'],
     upgrade: ['Upgrade', 'Ulepsz'],
     equip: ['Equip', 'Załóż'],
     unequip: ['Unequip', 'Zdejmij'],
@@ -109,7 +105,6 @@
     salvageFor: ['Salvage: +{s} scrap', 'Rozłóż: +{s} złomu'],
     maxLevel: ['Max level', 'Maks. poziom'],
     level: ['Level {n}', 'Poziom {n}'],
-    levelShort: ['Lv {n}', 'Poz. {n}'],
     mergeHint: ['Merge 3 {rarity} {slot} items to upgrade rarity', 'Połącz 3 przedmioty ({rarity}, {slot}), aby podnieść rzadkość'],
     mergeHintWeapon: ['Merge 3 identical {rarity} weapons to upgrade rarity', 'Połącz 3 identyczne bronie ({rarity}), aby podnieść rzadkość'],
     startSkill: ['Starting skill: {skill}', 'Umiejętność startowa: {skill}'],
@@ -148,7 +143,6 @@
 
     dailyLogin: ['7-day login', 'Logowanie 7 dni'],
     day: ['Day {n}', 'Dzień {n}'],
-    claimed: ['Claimed', 'Odebrano'],
     dailyQuests: ['Daily quests', 'Zadania dzienne'],
     resetsIn: ['Resets in {t}', 'Reset za {t}'],
     activity: ['Activity', 'Aktywność'],
@@ -165,11 +159,10 @@
     ach_evolutions: ['Evolve a weapon', 'Ewoluuj broń'],
     ach_codex: ['Discover all {n} evolutions', 'Odkryj wszystkie ewolucje ({n})'],
     ach_bestRunLevel: ['Reach level {n} in one run', 'Osiągnij poziom {n} w jednej rundzie'],
-    ach_merges: ['Merge gear {n} times', 'Połącz ekwipunek {n} razy'],
+    ach_merges: ['Merge gear {n} [[n:time|times]]', 'Połącz ekwipunek {n} [[n:raz|razy|razy]]'],
     ach_accountLevel: ['Reach account level {n}', 'Osiągnij poziom konta {n}'],
-    ach_bosses: ['Defeat {n} bosses', 'Pokonaj {n} bossów'],
+    ach_bosses: ['Defeat {n} [[n:boss|bosses]]', 'Pokonaj {n} [[n:bossa|bossów|bossów]]'],
     done: ['Done', 'Gotowe'],
-    go: ['Go', 'Idź'],
 
     lv: ['Lv {n}', 'Poz. {n}'],
     pause: ['Paused', 'Pauza'],
@@ -249,16 +242,14 @@
     victory: ['Victory!', 'Zwycięstwo!'],
     defeat: ['Defeat', 'Porażka'],
     time: ['Time', 'Czas'],
-    kills: ['Kills', 'Zabici'],
+    kills: ['Kills', 'Pokonani'],
     runLevel: ['Level', 'Poziom'],
     rewards: ['Rewards', 'Nagrody'],
     doubleRewards: ['Double rewards', 'Podwójne nagrody'],
     retryFree: ['Retry free', 'Ponów za darmo'],
     newChapter: ['New chapter unlocked!', 'Odblokowano nowy rozdział!'],
     accountUp: ['Account level {n}!', 'Poziom konta {n}!'],
-    youGot: ['You got', 'Otrzymujesz'],
     reward: ['Reward', 'Nagroda'],
-    newItem: ['New item', 'Nowy przedmiot'],
 
     settings: ['Settings', 'Ustawienia'],
     sound: ['Sound effects', 'Efekty dźwiękowe'],
@@ -270,6 +261,10 @@
     language: ['Language', 'Język'],
     privacyOptions: ['Privacy & ad options', 'Opcje prywatności i reklam'],
     privacyPolicy: ['Privacy policy', 'Polityka prywatności'],
+    licenses: ['Licenses', 'Licencje'],
+    licensesIntro: ['Fonts and open-source software used in this game', 'Fonty i oprogramowanie open source użyte w grze'],
+    licensesFont: ['Polish letters added for this game', 'dodane polskie litery'],
+    licensesOwn: ['Music, sound effects and graphics are generated by the game’s own code.', 'Muzyka, efekty dźwiękowe i grafika są generowane przez kod gry.'],
     rateGame: ['Rate the game', 'Oceń grę'],
     resetProgress: ['Reset progress', 'Resetuj postęp'],
     resetConfirm: ['Delete all progress? This cannot be undone.', 'Usunąć cały postęp? Tego nie da się cofnąć.'],
@@ -280,14 +275,13 @@
 
     exitQ: ['Exit the game?', 'Wyjść z gry?'],
     rateQ: ['Enjoying Neon Horde? A 5★ rating helps us a lot!', 'Podoba ci się Neon Horde? Ocena 5★ bardzo nam pomaga!'],
-    yes: ['Yes', 'Tak'], no: ['No', 'Nie'], cancel: ['Cancel', 'Anuluj'], ok: ['OK', 'OK'], close: ['Close', 'Zamknij'],
+    yes: ['Yes', 'Tak'], no: ['No', 'Nie'], cancel: ['Cancel', 'Anuluj'], ok: ['OK', 'OK'],
 
     tut_move: ['Drag anywhere to move', 'Przeciągnij palcem, aby się poruszać'],
     tut_auto: ['Your weapon fires automatically', 'Twoja broń strzela sama'],
     tut_gems: ['Collect crystals to level up', 'Zbieraj kryształy, aby awansować'],
     tut_crate: ['Elites drop crates — evolutions hide inside!', 'Elity upuszczają skrzynie — w nich są ewolucje!'],
     hint_gear: ['New gear! Equip and upgrade it here', 'Nowy ekwipunek! Załóż go i ulepsz tutaj'],
-    hint_patrol: ['Your squad earns rewards even while you are away', 'Twój oddział zarabia nawet, gdy cię nie ma'],
 
     notif_gold_t: ['Free Gold Crate is ready!', 'Darmowa Złota Skrzynia czeka!'],
     notif_gold_b: ['Open it before the horde does.', 'Otwórz ją, zanim zrobi to horda.'],
@@ -309,8 +303,25 @@
     t(key, vars) {
       const e = S[key];
       let s = e ? (e[LANGS[this.lang]] || e[0]) : key;
-      if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+      if (vars) {
+        // plural forms: [[n:one|few|many]] (English uses one|other)
+        s = s.replace(/\[\[(\w+):([^\]]+)\]\]/g, (m, k, forms) => this.plural(Number(vars[k]), forms.split('|')));
+        for (const k in vars) s = s.split('{' + k + '}').join(typeof vars[k] === 'number' ? this.num(vars[k]) : vars[k]);
+      }
       return s;
+    },
+    plural(n, forms) {
+      if (this.lang === 'pl') {
+        if (n === 1) return forms[0];
+        const d = n % 10, h = n % 100;
+        return d >= 2 && d <= 4 && (h < 12 || h > 14) ? forms[1] : (forms[2] || forms[1]);
+      }
+      return n === 1 ? forms[0] : forms[1];
+    },
+    /** Integers get locale digit grouping (1,000 / 10 000); other numbers are printed as they are. */
+    num(n) {
+      if (!Number.isInteger(n) || Math.abs(n) < 10000 && this.lang === 'pl' || Math.abs(n) < 1000) return String(n);
+      try { return n.toLocaleString(this.lang === 'pl' ? 'pl-PL' : 'en-US'); } catch (err) { return String(n); }
     },
     has(key) { return !!S[key]; },
     langs: Object.keys(LANGS),

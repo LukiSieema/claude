@@ -30,16 +30,18 @@ class GameBridge(private val activity: MainActivity) {
     @JavascriptInterface
     fun isRewardedReady(): Boolean = activity.ads.isRewardedReady()
 
+    // Full-screen ads never block the JS thread: the outcome (including "no ad ready") always comes back
+    // through NHNative.onRewardResult / onInterstitialClosed, so a slow UI thread cannot drop a reward.
     @JavascriptInterface
-    fun showRewarded(requestId: Int, placement: String): Boolean {
+    fun showRewarded(requestId: Int, placement: String) = ui {
         if (BuildConfig.DEBUG) Log.d(TAG, "rewarded requested: $placement")
-        return uiResult(false) { activity.ads.showRewarded(requestId) }
+        if (!activity.ads.showRewarded(requestId)) activity.onRewardResult(requestId, earned = false, shown = false)
     }
 
     @JavascriptInterface
-    fun showInterstitial(requestId: Int, placement: String): Boolean {
+    fun showInterstitial(requestId: Int, placement: String) = ui {
         if (BuildConfig.DEBUG) Log.d(TAG, "interstitial requested: $placement")
-        return uiResult(false) { activity.ads.showInterstitial(requestId) }
+        if (!activity.ads.showInterstitial(requestId)) activity.onInterstitialClosed(requestId, false)
     }
 
     @JavascriptInterface

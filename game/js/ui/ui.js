@@ -64,6 +64,7 @@
         },
       };
       el.addEventListener('click', (e) => {
+        if (m.closed) return;
         if (e.target.closest('[data-close]')) { A.play('click'); m.close(); return; }
         if (e.target === el && m.dismiss) m.close();
       });
@@ -174,11 +175,16 @@
     /** Shows a rewarded ad. Resolves true when the reward should be granted. */
     async watchAd(placement) {
       const G = NH.G;
+      if (this.adShield) return false; // another ad is already starting
       if (!PF.rewardedReady()) { this.toast(t('adUnavailable'), 'bad'); A.play('deny'); return false; }
+      const shield = document.createElement('div');
+      shield.className = 'ad-shield';
+      document.body.appendChild(shield);
+      this.adShield = shield;
       A.suspend();
-      const ok = await PF.showRewarded(placement);
-      A.resume();
-      if (!ok) { this.toast(t('adUnavailable'), 'bad'); return false; }
+      let res = 'unavailable';
+      try { res = await PF.showRewarded(placement); } finally { A.resume(); shield.remove(); this.adShield = null; }
+      if (res !== 'earned') { this.toast(t(res === 'skipped' ? 'adNotCompleted' : 'adUnavailable'), 'bad'); return false; }
       NH.Meta.recordAd(G.state, G.now());
       G.persist();
       const nextMilestone = C.AD_TRACKER.find((m, i) => G.state.daily.ads === m.ads && !G.state.daily.adTrackerClaimed.includes(i));

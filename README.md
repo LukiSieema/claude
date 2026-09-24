@@ -50,7 +50,7 @@ cd android && ./gradlew bundleRelease   # → app/build/outputs/bundle/release/a
 - **Meta:** ekwipunek w 6 rzadkościach z perkami i łączeniem 3→1, talenty, poziom konta, energia,
   patrol offline (do 12 h), skrzynie (darmowa złota co 8 h), 7-dniowe logowanie, zadania dzienne,
   osiągnięcia, przewodnik ewolucji, EN/PL.
-- **Monetyzacja:** 12 miejsc reklam z nagrodą + licznik reklam dnia (3/6/10/15), baner tylko w menu,
+- **Monetyzacja:** 13 miejsc reklam z nagrodą + licznik reklam dnia (3/6/10/15), baner tylko w menu,
   pełnoekranowe tylko w naturalnych przerwach z limitami — szczegóły w GDD.
 - **Android:** pełny ekran, splash, ikona adaptacyjna (z wersją monochromatyczną), powiadomienia
   lokalne (skrzynia gotowa, patrol pełny, energia), przycisk wstecz, In-App Review, odtworzenie
@@ -60,12 +60,13 @@ cd android && ./gradlew bundleRelease   # → app/build/outputs/bundle/release/a
 ```
 game/                 gra HTML5 (index.html, css/, js/, fonts/, privacy.html)
   js/core/            util, config (balans!), i18n, save, audio, platform (most do Androida)
-  js/game/            symulacja: world, weapons, enemies, input, juice (efekty)
-  js/render/          sprites, fx, renderer
+  js/game/            symulacja (bez DOM, ładowana też w Node): world, weapons, enemies
+  js/render/          sprites, fx, renderer, juice (efekty zdarzeń)
   js/meta/            meta-progresja (ekwipunek, talenty, patrol, skrzynie, zadania…)
-  js/ui/              UI: ui, lobby, stage, run-ui ; js/main.js — kontroler i pętla gry
+  js/ui/              UI: ui, lobby, stage, run-ui, input (joystick) ; js/main.js — kontroler i pętla gry
 android/              projekt Android Studio (Kotlin): MainActivity, GameBridge, AdsManager, powiadomienia
-tools/                simulate.js (balans), store-assets.js (grafiki sklepu), generate-art.sh (Pollinations)
+tools/                simulate.js (balans), store-assets.js (grafiki sklepu), build-fonts.py (fonty z polskimi znakami),
+                      generate-art.sh (Pollinations)
 tests/                unit/ (node:test), e2e/smoke.js (Playwright, emulowany telefon)
 docs/                 GDD, konfiguracja AdMob, karta sklepu, checklista, zrzuty ekranu
 .claude/skills/       skille Claude Code używane w projekcie (spis: .claude/skills/SOURCES.md)
@@ -73,7 +74,7 @@ docs/                 GDD, konfiguracja AdMob, karta sklepu, checklista, zrzuty 
 
 ## Testy i narzędzia
 ```bash
-npm test                 # 33 testy jednostkowe: rdzeń, zapis, meta-progresja, symulacja
+npm test                 # 46 testów jednostkowych: rdzeń, zapis, meta-progresja, symulacja
 npm run sim              # symulacja balansu: bot przechodzi rozdziały na różnych etapach rozwoju
 npm run e2e              # Playwright: samouczek, level-up, boss, wyniki, reklama, lobby (+ zrzuty w docs/screenshots)
 npm run store-assets     # ikona 512, grafika 1024×500 i 14 zrzutów 9:16 (EN/PL) do docs/store
@@ -89,4 +90,6 @@ potem sprawdzasz `npm run sim` — tabela pokazuje, czy dany poziom ekwipunku pr
 3. Klucz podpisu (`android/keystore.properties`) — instrukcja w checkliście.
 4. Konto Google Play Console i AdMob.
 
-Fonty: Fredoka (SIL Open Font License, `game/fonts/OFL.txt`).
+Fonty: Fredoka (SIL Open Font License, `game/fonts/OFL.txt`). Oryginalna Fredoka nie ma liter
+ą ć ę ń ś ź ż, więc `tools/build-fonts.py` dodaje je z jej własnych akcentów (grubości 500/600/700);
+licencje widać też w grze: *Ustawienia → Licencje*.

@@ -19,7 +19,7 @@
   <p class="muted">Effective date: 2026-09-23</p>
   <p>This policy explains what data the game <b>Neon Horde: Survivor Arena</b> (the “App”) and its advertising partner process. The App has no user accounts and does not ask for your name, e-mail or location.</p>
   <h2>Data stored on your device</h2>
-  <p>Your game progress (levels, items, currencies, settings) is saved only on your device. Uninstalling the App or using “Reset progress” deletes it. We do not upload it to our servers.</p>
+  <p>Your game progress (levels, items, currencies, settings) is saved on your device. We do not upload it to our servers. If Android backup is turned on, Android may include it in your device backup in your Google account (managed by Google), so it can be restored on a new phone. Uninstalling the App or using “Reset progress” deletes it from the device.</p>
   <h2>Advertising (Google AdMob)</h2>
   <p>The App is free and shows ads provided by Google AdMob. To serve and measure ads, Google may collect and process: the device advertising ID, IP address, device and app information, and ad interaction data (views, clicks). Depending on your consent, ads may be personalised.</p>
   <ul>
@@ -40,7 +40,7 @@
   <p class="muted">Obowiązuje od: 23.09.2026</p>
   <p>Ta polityka opisuje, jakie dane przetwarza gra <b>Neon Horde: Survivor Arena</b> („Aplikacja”) oraz jej partner reklamowy. Aplikacja nie ma kont użytkowników i nie prosi o imię, e-mail ani lokalizację.</p>
   <h2>Dane zapisywane na urządzeniu</h2>
-  <p>Postęp gry (poziomy, przedmioty, waluty, ustawienia) jest zapisywany wyłącznie na Twoim urządzeniu. Odinstalowanie Aplikacji lub „Resetuj postęp” usuwa te dane. Nie wysyłamy ich na nasze serwery.</p>
+  <p>Postęp gry (poziomy, przedmioty, waluty, ustawienia) jest zapisywany na Twoim urządzeniu. Nie wysyłamy go na nasze serwery. Jeśli masz włączoną kopię zapasową Androida, system może dołączyć go do kopii urządzenia na Twoim koncie Google (zarządza nią Google), aby można go było przywrócić na nowym telefonie. Odinstalowanie Aplikacji lub „Resetuj postęp” usuwa te dane z urządzenia.</p>
   <h2>Reklamy (Google AdMob)</h2>
   <p>Aplikacja jest darmowa i wyświetla reklamy Google AdMob. Aby wyświetlać i mierzyć reklamy, Google może zbierać i przetwarzać: identyfikator reklamowy urządzenia, adres IP, informacje o urządzeniu i aplikacji oraz dane o interakcjach z reklamami. W zależności od Twojej zgody reklamy mogą być spersonalizowane.</p>
   <ul>
@@ -58,7 +58,9 @@
 <script src="js/core/config.js"></script>
 <script>
   (function () {
-    var pl = (navigator.language || '').toLowerCase().indexOf('pl') === 0;
+    // the game passes its own language (?lang=pl); a browser opening the public URL uses the system language
+    var q = (location.search.match(/[?&]lang=(\w+)/) || [])[1];
+    var pl = (q || navigator.language || '').toLowerCase().indexOf('pl') === 0;
     document.getElementById(pl ? 'en' : 'pl').remove();
     document.querySelector('hr').remove();
     document.documentElement.lang = pl ? 'pl' : 'en';

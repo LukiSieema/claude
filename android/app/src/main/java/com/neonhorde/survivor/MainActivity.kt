@@ -203,8 +203,8 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
 
     override fun onBannerHeight(dp: Int) = js("window.NHNative && NHNative.onBannerHeight($dp)")
 
-    override fun onRewardResult(requestId: Int, earned: Boolean) =
-        js("window.NHNative && NHNative.onRewardResult($requestId,$earned)")
+    override fun onRewardResult(requestId: Int, earned: Boolean, shown: Boolean) =
+        js("window.NHNative && NHNative.onRewardResult($requestId,$earned,$shown)")
 
     override fun onInterstitialClosed(requestId: Int, shown: Boolean) =
         js("window.NHNative && NHNative.onInterstitialClosed($requestId,$shown)")

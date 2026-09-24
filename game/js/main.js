@@ -272,8 +272,8 @@
     async onBack() {
       if (UI.back()) return;
       if (this.mode === 'run') { this.pauseRun(); return; }
-      if (this.mode === 'lobby') {
-        if (NH.Lobby.tab !== 'battle') { NH.Lobby.setTab('battle'); return; }
+      if (this.mode === 'lobby' && NH.Lobby.tab !== 'battle') { NH.Lobby.setTab('battle'); return; }
+      if (this.mode === 'lobby' || this.mode === 'loading') {
         if (await UI.confirm(t('exitQ'), t('yes'))) { this.flush(); PF.exitApp(); }
       }
     },
@@ -282,15 +282,13 @@
       if (!PF.isNative) return;
       const s = this.state, now = this.now();
       const N = C.NOTIFY;
-      const gold = M.freeGoldIn(s, now);
-      PF.cancelNotification(N.goldChest);
-      if (gold > 60) PF.scheduleNotification(N.goldChest, gold, t('notif_gold_t'), t('notif_gold_b'));
-      const patrol = M.patrolFullIn(s, now);
-      PF.cancelNotification(N.patrolFull);
-      if (patrol > 60) PF.scheduleNotification(N.patrolFull, patrol, t('notif_patrol_t'), t('notif_patrol_b'));
-      const energy = M.energyFullIn(s, now);
-      PF.cancelNotification(N.energyFull);
-      if (energy > 60) PF.scheduleNotification(N.energyFull, energy, t('notif_energy_t'), t('notif_energy_b'));
+      const remind = (id, sec, title, body) => {
+        PF.cancelNotification(id);
+        if (sec > 60) PF.scheduleNotification(id, M.notifyDelay(now, sec), t(title), t(body));
+      };
+      remind(N.goldChest, M.freeGoldIn(s, now), 'notif_gold_t', 'notif_gold_b');
+      remind(N.patrolFull, M.patrolFullIn(s, now), 'notif_patrol_t', 'notif_patrol_b');
+      remind(N.energyFull, M.energyFullIn(s, now), 'notif_energy_t', 'notif_energy_b');
     },
 
     // ------------------------------------------------------------------ loop

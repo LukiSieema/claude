@@ -328,6 +328,7 @@
   C.FREE_GOLD_COOLDOWN = 8 * 3600;
   C.FREE_GOLD_AD_CUT = 0.8; // "skrócenie czasu oczekiwania o 80%"
   C.AD_SILVER_PER_DAY = 2;
+  C.COIN_CACHE = { gemCost: 40, hours: 2 };
   C.FREE_GEMS_AD = { perDay: 3, amount: 25 };
 
   C.AD_TRACKER = [
@@ -397,7 +398,8 @@
     takeAllPerRun: 1,
   };
 
-  C.NOTIFY = { goldChest: 1001, patrolFull: 1002, energyFull: 1003, daily: 1004 };
+  C.NOTIFY = { goldChest: 1001, patrolFull: 1002, energyFull: 1003 };
+  C.NOTIFY_QUIET = { from: 22, to: 9 }; // local hours: reminders due at night wait until the morning
 
   NH.C = C;
   if (typeof module !== 'undefined' && module.exports) module.exports = NH;

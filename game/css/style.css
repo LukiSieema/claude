@@ -1,20 +1,8 @@
 /* Neon Horde — UI styles. Palette: midnight indigo base, arc-cyan primary, solar-gold rewards. */
-@font-face {
-  font-family: 'Fredoka';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 300 700;
-  src: url('../fonts/fredoka-latin.woff2') format('woff2-variations'), url('../fonts/fredoka-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Fredoka';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 300 700;
-  src: url('../fonts/fredoka-latin-ext.woff2') format('woff2-variations'), url('../fonts/fredoka-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
+/* Fredoka 500/600/700, rebuilt with the Polish letters the original lacks (tools/build-fonts.py). */
+@font-face { font-family: 'Fredoka'; font-style: normal; font-display: swap; font-weight: 500; src: url('../fonts/fredoka-500.woff2') format('woff2'); }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-display: swap; font-weight: 600; src: url('../fonts/fredoka-600.woff2') format('woff2'); }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-display: swap; font-weight: 700; src: url('../fonts/fredoka-700.woff2') format('woff2'); }
 
 :root {
   --bg: #0d0b24;
@@ -149,6 +137,19 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
 .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 12px; background: rgba(8, 6, 26, 0.75); box-shadow: inset 0 0 0 1.5px var(--line); display: grid; place-items: center; flex: none; }
 .icon-btn .ico { width: 22px; height: 22px; }
+/* narrow phones (360 dp is common): the top bar must fit avatar, 3 currencies and the settings button */
+@media (max-width: 400px) {
+  .topbar { gap: 6px; padding-left: calc(var(--sal) + 8px); padding-right: calc(var(--sar) + 8px); }
+  .currencies { gap: 4px; }
+  .pill { gap: 3px; padding: 0 7px 0 4px; font-size: 14px; }
+  .pill .ico { width: 18px; height: 18px; }
+}
+@media (max-width: 345px) {
+  .avatar, .avatar canvas { width: 42px; height: 42px; }
+  .pill { font-size: 13px; height: 30px; padding: 0 6px 0 3px; }
+  .pill .plus { width: 16px; height: 16px; line-height: 16px; font-size: 14px; }
+  .icon-btn { width: 34px; height: 34px; }
+}
 
 .lobby-content {
   position: absolute; left: 0; right: 0;
@@ -321,7 +322,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   background: rgba(6, 4, 20, 0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   animation: fade-in 0.18s ease-out;
 }
-.modal.closing { animation: fade-out 0.15s ease-in forwards; }
+.modal.closing { animation: fade-out 0.15s ease-in forwards; pointer-events: none; }
+/* swallows taps while a rewarded ad is starting, so no button can fire twice (double rewards) */
+.ad-shield { position: fixed; inset: 0; z-index: 150; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fade-out { to { opacity: 0; } }
 .modal-box {

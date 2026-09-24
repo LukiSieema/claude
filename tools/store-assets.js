@@ -135,7 +135,7 @@ async function captureRaw(browser, lang) {
     await battle(page, 3, 330, BUILD);
     await crowd(page, 150);
     await walk(page, 2600);
-    await page.evaluate(() => { const w = NH.G.world; NH.UI.closeAll(); w.pendingCrate = false; w.pendingLevels = 0; w.state = 'play'; });
+    await page.evaluate(() => { const w = NH.G.world; NH.UI.closeAll(); w.pendingCrates = 0; w.pendingLevels = 0; w.state = 'play'; });
     await crowd(page, 140);
     await sleep(330);
     shots.horde = path.join(RAW, lang + '-horde.png');

@@ -71,17 +71,21 @@
 
     canMerge(s, uid) { return this.mergeFodder(s, uid).length >= 2; },
 
-    /** Merge `uid` with two same-slot, same-rarity items → rarity + 1. Coins spent on fodder are refunded. */
+    /**
+     * Merge `uid` with two same-slot, same-rarity items → rarity + 1. The result keeps the highest level of the
+     * three (with the coins paid for it); coins spent on the other two are refunded, so levels are never free.
+     */
     merge(s, uid) {
       const it = this.getItem(s, uid);
       const fodder = this.mergeFodder(s, uid).slice(0, 2);
       if (!it || fodder.length < 2) return null;
+      let best = it;
+      for (const f of fodder) if (f.level > best.level) best = f;
       let refund = 0;
-      for (const f of fodder) {
-        refund += f.spent;
-        it.level = Math.max(it.level, f.level);
-        s.inventory.splice(s.inventory.indexOf(f), 1);
-      }
+      for (const o of [it].concat(fodder)) if (o !== best) refund += o.spent;
+      it.level = best.level;
+      it.spent = best.spent;
+      for (const f of fodder) s.inventory.splice(s.inventory.indexOf(f), 1);
       it.rarity++;
       s.coins += refund;
       s.stats.merges++;
@@ -327,12 +331,20 @@
       s.freeGoldReadyAt -= cut * 1000;
       return cut;
     },
-    adSilverIn(s, now) { return Math.max(0, (s.adSilverReadyAt - now) / 1000); },
-    claimAdSilver(s, now, rng) {
+    claimAdSilver(s, rng) {
       if (s.daily.silverAds >= C.AD_SILVER_PER_DAY) return null;
       s.daily.silverAds++;
-      s.adSilverReadyAt = now + 4 * 3600 * 1000;
       return [this.rollChest(s, 'silver', rng)];
+    },
+
+    /** Shop: coins worth C.COIN_CACHE.hours of patrol for gems. */
+    coinCacheAmount(s) { return Math.round(this.patrolRates(s).coins * C.COIN_CACHE.hours * this.heroStats(s).coinMult); },
+    buyCoinCache(s) {
+      if (s.gems < C.COIN_CACHE.gemCost) return 0;
+      s.gems -= C.COIN_CACHE.gemCost;
+      const coins = this.coinCacheAmount(s);
+      s.coins += coins;
+      return coins;
     },
 
     /** Grant a reward object {coins, gems, energy, scrap, chest}. */
@@ -467,6 +479,17 @@
       this.questProgress(s, 'runs', 1);
       this.questProgress(s, 'elites', result.elites);
       return out;
+    },
+
+    // --------------------------------------------------------- notifications
+    /** Delay (s) for a reminder due in `delaySec`; one that would fire during quiet hours waits until morning. */
+    notifyDelay(now, delaySec) {
+      const Q = C.NOTIFY_QUIET;
+      const at = new Date(now + delaySec * 1000);
+      const h = at.getHours();
+      if (h < Q.from && h >= Q.to) return delaySec;
+      const morning = new Date(at.getFullYear(), at.getMonth(), at.getDate() + (h >= Q.from ? 1 : 0), Q.to, 0, 0, 0);
+      return (morning.getTime() - now) / 1000;
     },
 
     // --------------------------------------------------------- interstitials

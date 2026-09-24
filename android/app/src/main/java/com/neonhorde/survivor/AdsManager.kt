@@ -40,7 +40,7 @@ class AdsManager(
 ) {
     interface Listener {
         fun onBannerHeight(dp: Int)
-        fun onRewardResult(requestId: Int, earned: Boolean)
+        fun onRewardResult(requestId: Int, earned: Boolean, shown: Boolean)
         fun onInterstitialClosed(requestId: Int, shown: Boolean)
         fun onConsentResolved(canRequestAds: Boolean)
     }
@@ -158,21 +158,21 @@ class AdsManager(
         rewarded = null
         var earned = false
         var reported = false
-        val report = { ok: Boolean ->
+        val report = { ok: Boolean, shown: Boolean ->
             if (!reported) {
                 reported = true
-                listener.onRewardResult(requestId, ok)
+                listener.onRewardResult(requestId, ok, shown)
             }
         }
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                report(earned)
+                report(earned, true)
                 loadRewarded()
             }
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
                 Log.w(TAG, "Rewarded failed to show: ${error.message}")
-                report(false)
+                report(false, false)
                 loadRewarded()
             }
         }

@@ -156,7 +156,7 @@
       const choices = w.rollChoices(3);
       A.play('card');
       const canReroll = w.rerollsUsed < C.ADS.rerollPerRun;
-      const canAll = w.takeAllUsed < C.ADS.takeAllPerRun && choices.filter((c) => c.kind === 'weapon' || c.kind === 'passive').length === 3;
+      const canAll = w.takeAllUsed < C.ADS.takeAllPerRun && choices.filter((c) => c.kind === 'weapon' || c.kind === 'passive').length === 3 && w.fitsAll(choices);
       const m = UI.modal({
         cls: 'levelup', raw: true, dismiss: false,
         html: '<div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center">' +
@@ -184,14 +184,18 @@
         if (!x || x.disabled) return;
         x.disabled = true;
         if (x.dataset.x === 'reroll') {
-          if (await UI.watchAd('levelup_reroll')) {
+          const ok = await UI.watchAd('levelup_reroll');
+          if (picked) return;
+          if (ok) {
             w.rerollsUsed++;
             picked = true;
             m.close();
             setTimeout(() => this.showLevelUp(), 160);
           } else x.disabled = false;
         } else if (x.dataset.x === 'all') {
-          if (await UI.watchAd('levelup_take_all')) {
+          const ok = await UI.watchAd('levelup_take_all');
+          if (picked) return;
+          if (ok) {
             w.takeAllUsed++;
             picked = true;
             for (const c of choices) w.applyChoice(c);
@@ -240,7 +244,7 @@
       setTimeout(reveal, 830);
       m.el.addEventListener('click', async (e) => {
         const x = e.target.closest('[data-x]');
-        if (!x || x.disabled) return;
+        if (!x || x.disabled || m.closed) return;
         if (x.dataset.x === 'done') { A.play('click'); m.close(); w.finishCrate(); }
         else if (x.dataset.x === 'again') {
           x.disabled = true;
@@ -370,7 +374,9 @@
         const act = x.dataset.x;
         if (act === 'double') {
           x.disabled = true;
-          if (!(await UI.watchAd('run_double'))) { x.disabled = false; return; }
+          const ok = await UI.watchAd('run_double');
+          if (claimed) return;
+          if (!ok) { x.disabled = false; return; }
           claimed = true;
           $('#res-rewards').innerHTML = UI.rewardChipsHTML({ coins: rewards.coins * 2, scrap: rewards.scrap * 2, xp: rewards.xp, items: itemsPreview.concat(itemsPreview) });
           A.play('reward');
@@ -384,7 +390,9 @@
           G.afterRun(out, result);
         } else if (act === 'retry') {
           x.disabled = true;
-          if (!(await UI.watchAd('retry_free'))) { x.disabled = false; return; }
+          const ok = await UI.watchAd('retry_free');
+          if (claimed) return;
+          if (!ok) { x.disabled = false; return; }
           claimed = true;
           G.claimRun(result, rewards, 1);
           m.close();
