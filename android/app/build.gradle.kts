@@ -117,6 +117,9 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
+    // Play Services (ads, UMP, review) pull an old androidx.fragment; the ActivityResult API used for the
+    // notification permission needs >= 1.3.0, otherwise lintVitalRelease fails the release build.
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.webkit)
     implementation(libs.play.services.ads)
