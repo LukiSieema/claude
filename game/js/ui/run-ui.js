@@ -39,6 +39,8 @@
 
     hint(text, secs) {
       const el = $('#tutorial-hint');
+      // called every frame during the tutorial: only touch the DOM when something changes
+      if (el.textContent === text && !el.hidden && !secs) return;
       el.textContent = text;
       el.hidden = false;
       clearTimeout(this.hintTimer);
@@ -53,12 +55,13 @@
       this.hudT -= dt;
       if (this.hudT <= 0) {
         this.hudT = 0.1;
-        $('#hud-level').textContent = t('lv', { n: w.level });
-        $('#hud-kills').textContent = U.fmt(w.kills);
-        $('#hud-coins').textContent = U.fmt(w.coins);
-        const timer = $('#hud-timer');
-        if (w.boss) { timer.textContent = t('boss').toUpperCase(); timer.classList.add('boss'); }
-        else timer.textContent = U.fmtTime(w.t);
+        // write only changed values: each text write costs a layout
+        const set = (sel, text) => { const el = $(sel); if (el.textContent !== text) el.textContent = text; };
+        set('#hud-level', t('lv', { n: w.level }));
+        set('#hud-kills', U.fmt(w.kills));
+        set('#hud-coins', U.fmt(w.coins));
+        if (w.boss) { set('#hud-timer', t('boss').toUpperCase()); $('#hud-timer').classList.add('boss'); }
+        else set('#hud-timer', U.fmtTime(w.t));
       }
       if (this.skillsDirty) { this.skillsDirty = false; this.renderSkills(); }
       if (this.tut) this.tutorial(dt);

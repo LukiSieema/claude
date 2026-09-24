@@ -135,6 +135,15 @@
     cancelNotification(id) { this.call('cancelNotification', id); },
     requestNotificationPermission() { this.call('requestNotificationPermission'); },
 
+    /** Resolves once the ad-consent flow (UMP) has finished — at once on the web — or after `timeoutMs`. */
+    whenConsentResolved(timeoutMs) {
+      if (!native || this.call('isConsentResolved') === true) return Promise.resolve();
+      return new Promise((resolve) => {
+        const timer = setTimeout(resolve, timeoutMs);
+        this.on('consent', () => { clearTimeout(timer); resolve(); });
+      });
+    },
+
     privacyOptionsRequired() { return native ? this.call('isPrivacyOptionsRequired') === true : false; },
     openPrivacyOptions() { this.call('showPrivacyOptions'); },
 
@@ -180,6 +189,8 @@
       Platform.emit('resume');
     },
     onBack() { Platform.emit('back'); return true; },
+    /** A dialog, the notification shade or another window covers the game (the activity itself keeps running). */
+    onFocusLost() { Platform.emit('blur'); },
     onConsent(canRequestAds) { Platform.emit('consent', !!canRequestAds); },
   };
 

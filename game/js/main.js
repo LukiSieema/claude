@@ -64,6 +64,7 @@
       PF.on('pause', () => this.onPause());
       PF.on('resume', () => this.onResume());
       PF.on('back', () => this.onBack());
+      PF.on('blur', () => this.pauseRun());
       PF.on('banner', () => { if (NH.Lobby.stage) NH.Lobby.stage.resize(); });
       root.addEventListener('keydown', (e) => { if (e.key === 'Escape') this.onBack(); });
 
@@ -85,6 +86,9 @@
         await new Promise((r) => setTimeout(r, 60));
       }
       if (!this.state.tutorial.firstRunDone) {
+        // first launch: the ad-consent form (EEA) must be answered before the tutorial run starts, so it never
+        // pops up over the fight
+        await PF.whenConsentResolved(8000);
         $('.loading-text').textContent = t('tapToStart');
         $('.loading-text').classList.add('pulse');
         const go = () => {

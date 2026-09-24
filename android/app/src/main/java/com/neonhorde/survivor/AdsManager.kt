@@ -48,6 +48,10 @@ class AdsManager(
     private val main = Handler(Looper.getMainLooper())
     private val consent: ConsentInformation = UserMessagingPlatform.getConsentInformation(activity)
     private val sdkStarted = AtomicBoolean(false)
+
+    /** True once the consent flow has finished (form answered, not required, or failed). */
+    @Volatile var consentResolved = false
+        private set
     @Volatile private var sdkReady = false
 
     @Volatile private var rewarded: RewardedAd? = null
@@ -98,6 +102,7 @@ class AdsManager(
     }
 
     private fun onConsentKnown() {
+        consentResolved = true
         val can = consent.canRequestAds()
         if (can) startSdk()
         listener.onConsentResolved(can)

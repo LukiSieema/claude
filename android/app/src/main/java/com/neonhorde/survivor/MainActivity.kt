@@ -192,7 +192,11 @@ class MainActivity : ComponentActivity(), AdsManager.Listener {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) applyImmersive()
+        // e.g. the consent form, a permission dialog or the notification shade: pause a running fight
+        else js("window.NHNative && NHNative.onFocusLost()")
     }
+
+    fun isConsentResolved(): Boolean = ::ads.isInitialized && ads.consentResolved
 
     fun setKeepScreenOn(on: Boolean) {
         if (on) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
