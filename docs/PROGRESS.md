@@ -10,7 +10,7 @@
   blokada wydania z testowymi ID reklam. Kotlin sprawdzony kompilatorem pod kątem składni
   (pełnej kompilacji nie da się zrobić w chmurze — Android SDK jest zablokowany przez politykę sieci).
 - Balans: symulator `tools/simulate.js`; pierwszy level-up po ~6–10 s, bramki rozdziałów 3/7/10.
-- Testy: 33 jednostkowe (`npm test`), E2E Playwright na emulowanym Pixelu 7 (`npm run e2e`).
+- Testy: 34 jednostkowe (`npm test`), E2E Playwright na emulowanym Pixelu 7 (`npm run e2e`).
 - Materiały do Google Play: ikona 512, grafika 1024×500, 7 zrzutów 9:16 × EN/PL (`docs/store/`),
   teksty karty (`docs/PLAY_STORE_LISTING.md`), AdMob (`docs/ADMOB_SETUP.md`), checklista (`docs/RELEASE_CHECKLIST.md`).
 

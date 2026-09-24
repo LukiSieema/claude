@@ -7,7 +7,8 @@
 
   function Renderer(canvas) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    // No `desynchronized`: that path bypasses the page compositor and left the canvas black in the Android WebView.
+    this.ctx = canvas.getContext('2d', { alpha: false });
     this.w = 1; this.h = 1; this.dpr = 1; this.scale = 1;
     this.cam = { x: 0, y: 0 };
     this.bg = null;
