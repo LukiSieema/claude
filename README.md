@@ -74,7 +74,7 @@ docs/                 GDD, konfiguracja AdMob, karta sklepu, checklista, zrzuty 
 
 ## Testy i narzędzia
 ```bash
-npm test                 # 46 testów jednostkowych: rdzeń, zapis, meta-progresja, symulacja
+npm test                 # 48 testów jednostkowych: rdzeń, zapis, meta-progresja, symulacja
 npm run sim              # symulacja balansu: bot przechodzi rozdziały na różnych etapach rozwoju
 npm run e2e              # Playwright: samouczek, level-up, boss, wyniki, reklama, lobby (+ zrzuty w docs/screenshots)
 npm run store-assets     # ikona 512, grafika 1024×500 i 14 zrzutów 9:16 (EN/PL) do docs/store

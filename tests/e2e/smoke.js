@@ -91,15 +91,24 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.waitForSelector('.result-title', { timeout: 15000 });
   await sleep(600);
   await shot('06-results');
-  // double rewards via simulated rewarded ad
-  await page.locator('[data-x="double"]').tap();
+  // the tutorial run offers no ad buttons (the ad SDK only starts after it)
+  if (await page.locator('.modal [data-x="double"], .modal [data-x="retry"]').count()) throw new Error('ad buttons shown in the tutorial results');
+  await page.locator('[data-x="claim"]').tap();
+  await sleep(2500);
+  // interstitial is suppressed for the first runs; close any modal that appears
+  for (let i = 0; i < 3; i++) { const c = page.locator('.modal [data-close]').first(); if (await c.isVisible().catch(() => false)) { await c.tap(); await sleep(300); } }
+  // rewarded ad (simulated in the browser): free gems in the shop
+  await page.locator('[data-tab="shop"]').tap();
+  await sleep(500);
+  await page.locator('[data-act="ad-gems"]').tap();
   await page.waitForSelector('.web-ad', { timeout: 5000 });
   await shot('07-web-ad');
   await sleep(3300);
   await page.locator('.web-ad-close').tap();
-  await sleep(2500);
-  // interstitial is suppressed for the first runs; close any modal that appears
+  await sleep(1200);
   for (let i = 0; i < 3; i++) { const c = page.locator('.modal [data-close]').first(); if (await c.isVisible().catch(() => false)) { await c.tap(); await sleep(300); } }
+  await page.locator('[data-tab="battle"]').tap();
+  await sleep(700);
   await shot('08-lobby-battle');
   for (const tab of ['shop', 'gear', 'talents', 'events']) {
     await page.locator('[data-tab="' + tab + '"]').tap();

@@ -74,6 +74,9 @@
       return this.webAdOverlay('interstitial', placement).then((r) => { this.adBusy = false; return r; });
     },
 
+    /** Holds the ad SDK start and ad downloads (Android) while the first-launch tutorial runs. */
+    pauseAds(paused) { this.call('setAdsPaused', !!paused); },
+
     setBanner(visible) {
       if (native) { this.call('setBannerVisible', !!visible); return; }
       const el = document.getElementById('web-banner');

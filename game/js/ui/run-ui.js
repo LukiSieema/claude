@@ -158,8 +158,9 @@
       const w = this.world;
       const choices = w.rollChoices(3);
       A.play('card');
-      const canReroll = w.rerollsUsed < C.ADS.rerollPerRun;
-      const canAll = w.takeAllUsed < C.ADS.takeAllPerRun && choices.filter((c) => c.kind === 'weapon' || c.kind === 'passive').length === 3 && w.fitsAll(choices);
+      // no ad offers in the tutorial run (the ad SDK is not started yet on the first launch)
+      const canReroll = !w.tutorial && w.rerollsUsed < C.ADS.rerollPerRun;
+      const canAll = !w.tutorial && w.takeAllUsed < C.ADS.takeAllPerRun && choices.filter((c) => c.kind === 'weapon' || c.kind === 'passive').length === 3 && w.fitsAll(choices);
       const m = UI.modal({
         cls: 'levelup', raw: true, dismiss: false,
         html: '<div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center">' +
@@ -240,7 +241,7 @@
         }
         actions.hidden = false;
         const again = actions.querySelector('[data-x="again"]');
-        again.hidden = extraUsed;
+        again.hidden = extraUsed || w.tutorial;
       };
       const anim = m.el.querySelector('.crate-anim');
       anim.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-10deg) scale(1.05)' }, { transform: 'rotate(10deg) scale(1.1)' }, { transform: 'rotate(-8deg) scale(1.15)' }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 850, easing: 'ease-in' });
@@ -297,7 +298,7 @@
     // ----------------------------------------------------------------- revive
     showRevive() {
       const w = this.world, G = NH.G, s = G.state;
-      const canAd = w.adRevives < C.REVIVE.maxAdRevives;
+      const canAd = !w.tutorial && w.adRevives < C.REVIVE.maxAdRevives;
       const canGems = w.gemRevives < C.REVIVE.maxGemRevives;
       const canFree = w.freeRevives > 0;
       if (!canAd && !canGems && !canFree) { setTimeout(() => G.endRun(false), 900); return; }
@@ -356,6 +357,7 @@
     showResults(result, rewards) {
       const G = NH.G, s = G.state;
       const win = result.cleared;
+      const tutorial = !!(this.world && this.world.tutorial); // ads are only just starting: no ad buttons yet
       const itemsPreview = rewards.items.map((it) => ({ uid: 0, id: it.id, rarity: it.rarity, level: 1 }));
       let claimed = false;
       const m = UI.modal({
@@ -367,9 +369,9 @@
           '<div><span class="small muted">' + t('runLevel') + '</span><b>' + result.level + '</b></div></div>' +
           '<div class="section-title" style="margin:6px 2px">' + t('rewards') + '</div>' +
           '<div id="res-rewards">' + UI.rewardChipsHTML({ coins: rewards.coins, scrap: rewards.scrap, xp: rewards.xp, items: itemsPreview }) + '</div>' +
-          '<div class="modal-actions">' + UI.adBtn(t('doubleRewards'), 'data-x="double"', 'btn-wide btn-big shine') +
-          '<button class="btn btn-wide ' + (win ? 'btn-lime' : 'btn-ghost') + '" data-x="claim">' + t('continue') + '</button>' +
-          (!win ? UI.adBtn(t('retryFree'), 'data-x="retry"', 'btn-wide btn-sm btn-violet') : '') + '</div>',
+          '<div class="modal-actions">' + (tutorial ? '' : UI.adBtn(t('doubleRewards'), 'data-x="double"', 'btn-wide btn-big shine')) +
+          '<button class="btn btn-wide ' + (win || tutorial ? 'btn-lime' : 'btn-ghost') + '" data-x="claim">' + t('continue') + '</button>' +
+          (!win && !tutorial ? UI.adBtn(t('retryFree'), 'data-x="retry"', 'btn-wide btn-sm btn-violet') : '') + '</div>',
       });
       m.el.addEventListener('click', async (e) => {
         const x = e.target.closest('[data-x]');

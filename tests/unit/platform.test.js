@@ -64,3 +64,19 @@ test('the first run waits for the ad-consent flow, with a timeout', async () => 
   assert.ok(Date.now() - t0 >= 190, 'gives up after the timeout (e.g. no network)');
   await withNative({ isConsentResolved: () => true }).whenConsentResolved(5000); // already resolved: no wait
 });
+
+test('JS ↔ Android bridge names match (platform.js ↔ GameBridge.kt / MainActivity.kt)', () => {
+  const fs = require('fs');
+  const root = path.join(__dirname, '..', '..');
+  const js = fs.readFileSync(FILE, 'utf8');
+  const kt = (f) => fs.readFileSync(path.join(root, 'android/app/src/main/java/com/neonhorde/survivor', f), 'utf8');
+  const bridge = kt('GameBridge.kt');
+  const exported = new Set([...bridge.matchAll(/@JavascriptInterface\s+fun (\w+)\(/g)].map((m) => m[1]));
+  const called = new Set([...js.matchAll(/this\.(?:call|bridge)\('(\w+)'/g)].map((m) => m[1]));
+  for (const name of called) assert.ok(exported.has(name), 'GameBridge.kt lacks @JavascriptInterface fun ' + name);
+  const kotlin = kt('MainActivity.kt') + bridge;
+  const callbacks = new Set([...kotlin.matchAll(/NHNative\.(\w+)\(/g)].map((m) => m[1]));
+  const NHNative = withNative({});
+  assert.ok(NHNative); // loaded
+  for (const name of callbacks) assert.equal(typeof globalThis.NHNative[name], 'function', 'NHNative.' + name + ' is missing in platform.js');
+});

@@ -45,6 +45,8 @@
       for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
       M.ensureDaily(this.state, now, this.rng);
       M.updateEnergy(this.state, now);
+      // first launch: keep the ad SDK quiet until the tutorial run is over (it made the tutorial stutter)
+      if (!this.state.tutorial.firstRunDone) PF.pauseAds(true);
 
       this.canvas = $('#game-canvas');
       this.renderer = new NH.Renderer(this.canvas);
@@ -172,6 +174,7 @@
         onBoss: (e) => NH.RunUI.bossBar(e),
       }, this.renderer);
       NH.RunUI.attach(w, !!opts.tutorial);
+      if (opts.tutorial) PF.pauseAds(true);
       UI.show('screen-game');
       PF.setBanner(false);
       PF.keepScreenOn(true);
@@ -204,6 +207,7 @@
       const rewards = M.runRewards(this.state, result, this.rng);
       this.mode = 'results';
       this.state.tutorial.firstRunDone = true;
+      PF.pauseAds(false);
       PF.keepScreenOn(false);
       PF.setBanner(true);
       A.setMusicMode('menu');

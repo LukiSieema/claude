@@ -49,6 +49,11 @@ class AdsManager(
     private val consent: ConsentInformation = UserMessagingPlatform.getConsentInformation(activity)
     private val sdkStarted = AtomicBoolean(false)
 
+    // While paused (the first-launch tutorial) the SDK is not started and no ad is loaded: starting the SDK and
+    // downloading the first ads competes with the game for the CPU and made the tutorial stutter.
+    private var paused = false
+    private var sdkWanted = false
+
     /** True once the consent flow has finished (form answered, not required, or failed). */
     @Volatile var consentResolved = false
         private set
@@ -118,7 +123,19 @@ class AdsManager(
         }
     }
 
+    /** Main thread only. */
+    fun setPaused(value: Boolean) {
+        if (paused == value) return
+        paused = value
+        if (value) return
+        if (sdkWanted) startSdk()
+        loadRewarded()
+        loadInterstitial()
+        if (bannerWanted && sdkReady) showBanner()
+    }
+
     private fun startSdk() {
+        if (paused) { sdkWanted = true; return }
         if (!sdkStarted.compareAndSet(false, true)) return
         // Initialising on a background thread avoids ANRs on slow devices.
         Thread {
@@ -139,7 +156,7 @@ class AdsManager(
     fun isRewardedReady(): Boolean = rewarded != null
 
     private fun loadRewarded() {
-        if (!sdkReady || destroyed || rewarded != null || rewardedLoading) return
+        if (paused || !sdkReady || destroyed || rewarded != null || rewardedLoading) return
         rewardedLoading = true
         RewardedAd.load(activity, BuildConfig.ADMOB_REWARDED_ID, AdRequest.Builder().build(), object : RewardedAdLoadCallback() {
             override fun onAdLoaded(ad: RewardedAd) {
@@ -188,7 +205,7 @@ class AdsManager(
     // ------------------------------------------------------------- interstitial
 
     private fun loadInterstitial() {
-        if (!sdkReady || destroyed || interstitial != null || interstitialLoading) return
+        if (paused || !sdkReady || destroyed || interstitial != null || interstitialLoading) return
         interstitialLoading = true
         InterstitialAd.load(activity, BuildConfig.ADMOB_INTERSTITIAL_ID, AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
             override fun onAdLoaded(ad: InterstitialAd) {
@@ -228,7 +245,7 @@ class AdsManager(
 
     fun setBannerVisible(visible: Boolean) {
         bannerWanted = visible
-        if (!sdkReady) return
+        if (!sdkReady || paused) return
         if (visible) showBanner() else hideBanner()
     }
 

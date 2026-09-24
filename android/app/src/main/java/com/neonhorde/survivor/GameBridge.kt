@@ -48,6 +48,9 @@ class GameBridge(private val activity: MainActivity) {
     fun setBannerVisible(visible: Boolean) = ui { activity.ads.setBannerVisible(visible) }
 
     @JavascriptInterface
+    fun setAdsPaused(paused: Boolean) = ui { activity.ads.setPaused(paused) }
+
+    @JavascriptInterface
     fun isConsentResolved(): Boolean = activity.isConsentResolved()
 
     @JavascriptInterface
